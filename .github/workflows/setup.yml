@@ -35,14 +35,27 @@ jobs:
     - name: Start server in background
       run: |
         npm start &
-        sleep 3
+        echo $! > server.pid
+        
+    - name: Wait for server to be ready
+      run: |
+        for i in {1..30}; do
+          if curl -s http://localhost:3000/api/health > /dev/null; then
+            echo "Server is ready!"
+            exit 0
+          fi
+          echo "Waiting for server... ($i/30)"
+          sleep 1
+        done
+        echo "Server failed to start"
+        exit 1
         
     - name: Run integration tests
       run: node test-integration.js
       
     - name: Stop server
       run: |
-        PID=$(ps aux | grep "node server.js" | grep -v grep | awk '{print $2}' | head -1)
-        if [ ! -z "$PID" ]; then
-          kill $PID
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+          rm server.pid
         fi
