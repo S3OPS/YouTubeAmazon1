@@ -205,15 +205,21 @@ app.get('/api/products/:productId', async (req, res) => {
 
 // Create order with validation
 app.post('/api/orders', [
-    body('external_id').notEmpty().trim(),
-    body('line_items').isArray({ min: 1 }),
-    body('address_to.first_name').notEmpty().trim(),
-    body('address_to.last_name').notEmpty().trim(),
-    body('address_to.email').isEmail().normalizeEmail(),
-    body('address_to.address1').notEmpty().trim(),
-    body('address_to.city').notEmpty().trim(),
-    body('address_to.zip').notEmpty().trim(),
-    body('address_to.country').notEmpty().trim().isLength({ min: 2, max: 2 })
+    body('external_id').notEmpty().trim().withMessage('Order ID is required'),
+    body('line_items').isArray({ min: 1 }).withMessage('At least one item required'),
+    body('address_to.first_name').notEmpty().trim().withMessage('First name is required'),
+    body('address_to.last_name').notEmpty().trim().withMessage('Last name is required'),
+    body('address_to.email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('address_to.address1').notEmpty().trim().withMessage('Address is required'),
+    body('address_to.city').notEmpty().trim().withMessage('City is required'),
+    body('address_to.zip').notEmpty().trim().withMessage('ZIP code is required'),
+    body('address_to.country')
+        .notEmpty()
+        .trim()
+        .isLength({ min: 2, max: 2 })
+        .withMessage('Country must be a 2-letter ISO code (e.g., US, GB, CA)')
+        .isISO31661Alpha2()
+        .withMessage('Invalid country code')
 ], async (req, res) => {
     try {
         // Check for validation errors
