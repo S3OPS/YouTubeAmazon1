@@ -89,7 +89,7 @@ function formatPrintifyProducts(printifyData) {
 function getMockProducts() {
     return [
         {
-            id: 1,
+            id: '1',
             title: 'Premium T-Shirt',
             description: 'High-quality cotton t-shirt with custom print',
             price: '24.99',
@@ -98,7 +98,7 @@ function getMockProducts() {
             emoji: '👕'
         },
         {
-            id: 2,
+            id: '2',
             title: 'Hoodie',
             description: 'Comfortable hoodie with vibrant prints',
             price: '44.99',
@@ -107,7 +107,7 @@ function getMockProducts() {
             emoji: '🧥'
         },
         {
-            id: 3,
+            id: '3',
             title: 'Coffee Mug',
             description: 'Ceramic mug with custom design',
             price: '14.99',
@@ -116,7 +116,7 @@ function getMockProducts() {
             emoji: '☕'
         },
         {
-            id: 4,
+            id: '4',
             title: 'Canvas Print',
             description: 'Premium canvas wall art',
             price: '39.99',
@@ -125,7 +125,7 @@ function getMockProducts() {
             emoji: '🖼️'
         },
         {
-            id: 5,
+            id: '5',
             title: 'Tote Bag',
             description: 'Eco-friendly tote bag with custom print',
             price: '19.99',
@@ -134,7 +134,7 @@ function getMockProducts() {
             emoji: '👜'
         },
         {
-            id: 6,
+            id: '6',
             title: 'Phone Case',
             description: 'Durable phone case with custom design',
             price: '16.99',
@@ -143,7 +143,7 @@ function getMockProducts() {
             emoji: '📱'
         },
         {
-            id: 7,
+            id: '7',
             title: 'Sweatshirt',
             description: 'Cozy sweatshirt with premium print',
             price: '34.99',
@@ -152,7 +152,7 @@ function getMockProducts() {
             emoji: '👔'
         },
         {
-            id: 8,
+            id: '8',
             title: 'Poster',
             description: 'High-quality poster print',
             price: '12.99',
@@ -197,7 +197,7 @@ function renderProducts() {
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            const productId = parseInt(button.dataset.id);
+            const productId = button.dataset.id;
             addToCart(productId);
         });
     });
@@ -274,7 +274,7 @@ function renderCart() {
     // Add remove listeners
     document.querySelectorAll('.cart-item-remove').forEach(button => {
         button.addEventListener('click', () => {
-            const productId = parseInt(button.dataset.id);
+            const productId = button.dataset.id;
             removeFromCart(productId);
         });
     });
