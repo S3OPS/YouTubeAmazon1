@@ -9,6 +9,24 @@ Your Printify dropshipping store now uses a secure backend architecture:
 
 ## 🚀 Quick Start
 
+### Automated Setup (Recommended)
+
+Run the setup wizard to configure your environment:
+
+```bash
+npm run setup
+```
+
+The setup wizard will:
+✅ Create your `.env` file from the template  
+✅ Validate your configuration  
+✅ Provide step-by-step guidance  
+✅ Show you where to get API credentials  
+
+### Manual Setup
+
+If you prefer manual setup, follow these steps:
+
 ### Step 1: Configure Environment Variables
 
 1. Copy the example file:
@@ -23,6 +41,10 @@ Your Printify dropshipping store now uses a secure backend architecture:
    PRINTIFY_API_BASE_URL=https://api.printify.com/v1
    PORT=3000
    ```
+
+**Where to get your credentials:**
+- **API Token**: https://printify.com/app/account/api
+- **Shop ID**: Found in your Printify shop settings
 
 ### Step 2: Install Dependencies
 
