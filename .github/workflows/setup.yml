@@ -1,0 +1,48 @@
+name: Setup and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  setup-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Create .env file
+      run: |
+        cp .env.example .env
+        echo "Environment configuration file created"
+        
+    - name: Run security tests
+      run: npm test
+      
+    - name: Start server in background
+      run: |
+        npm start &
+        sleep 3
+        
+    - name: Run integration tests
+      run: node test-integration.js
+      
+    - name: Stop server
+      run: |
+        PID=$(ps aux | grep "node server.js" | grep -v grep | awk '{print $2}' | head -1)
+        if [ ! -z "$PID" ]; then
+          kill $PID
+        fi
