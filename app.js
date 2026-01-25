@@ -272,6 +272,7 @@ function renderCart() {
         </div>
     `).join('');
     
+    // Calculate total (Note: For production, use integer-based calculations in cents to avoid floating-point precision errors)
     const total = state.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     
     cartItems.innerHTML = cartHTML;
@@ -388,6 +389,10 @@ async function processOrder() {
         // which would then create orders in Printify
         if (config.apiToken !== 'YOUR_PRINTIFY_API_TOKEN') {
             // Example Printify order creation (simplified)
+            const nameParts = formData.name.split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'Customer';
+            
             const orderData = {
                 external_id: `ORDER-${Date.now()}`,
                 line_items: state.cart.map(item => ({
@@ -397,8 +402,8 @@ async function processOrder() {
                 shipping_method: 1,
                 send_shipping_notification: false,
                 address_to: {
-                    first_name: formData.name.split(' ')[0],
-                    last_name: formData.name.split(' ').slice(1).join(' '),
+                    first_name: firstName,
+                    last_name: lastName,
                     email: formData.email,
                     address1: formData.address,
                     city: formData.city,
