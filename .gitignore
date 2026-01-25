@@ -19,6 +19,9 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# Winston logs directory
+logs/
+
 # Temporary files
 /tmp/
 *.tmp
