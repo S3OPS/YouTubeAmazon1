@@ -1,11 +1,8 @@
 // Printify Dropshipping Store - Main Application
 
-// Configuration
+// Configuration - Backend API endpoint
 const config = {
-    // Replace with your Printify API credentials
-    apiToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzN2Q0YmQzMDM1ZmUxMWU5YTgwM2FiN2VlYjNjY2M5NyIsImp0aSI6Ijc4OWY2NjA5YjFmMDllNDc4YjIwYmVkMWNlODQwMzI4MTQ0ZjhmYjYxOGM3MzE5ZjRlMzU4YjQ3OTA1MDFjYTFjNmMwNDAxYmE0ZGQwMWJjIiwiaWF0IjoxNzY5MzMzODY5LjYyNDIzMSwibmJmIjoxNzY5MzMzODY5LjYyNDIzMywiZXhwIjoxODAwODY5ODY5LjYxNTA0LCJzdWIiOiIxNDI5OTU4MCIsInNjb3BlcyI6WyJzaG9wcy5tYW5hZ2UiLCJzaG9wcy5yZWFkIiwiY2F0YWxvZy5yZWFkIiwib3JkZXJzLnJlYWQiLCJvcmRlcnMud3JpdGUiLCJwcm9kdWN0cy5yZWFkIiwicHJvZHVjdHMud3JpdGUiLCJ3ZWJob29rcy5yZWFkIiwid2ViaG9va3Mud3JpdGUiLCJ1cGxvYWRzLnJlYWQiLCJ1cGxvYWRzLndyaXRlIiwicHJpbnRfcHJvdmlkZXJzLnJlYWQiLCJ1c2VyLmluZm8iXX0.NyVftNZLdGwM63zoUafF952gFU7RcnBRcQdmI1Gw3K_Bak4s_T4cT9M8QcwI-2sIyD55E30Y1rWfe6JdosllWUiU7FtZaJPYPTX2kdwJgrUxtDGt-5KpW6JJ9eFC5MFCmeAkc2LblS8rmkeMlrm33NMI_bTb27lgkWKGH-wzxeEWjv0cfBapKSsJZNTngE4VlrMRgBmg7ku-qjuabK1j1qFQ97dIq0FYLfJg66Qwk_yjFIv3caf3aVReaKDs-7fwHIDSNMK2Da1d47_-zqS1j8jrpkkHKS0Ez4zxuJZ-7OdHN4pA0bbgheiuY_ek7jUQpvsb6xJVLkMFgfkGjHSTA5jD0JI77mVDO8BY9X38ywTXP2_ovzk-tNIuABv0Z7oHRNFb9q9DBgMCNLeCOlgnOP7NhGuA5rG-sdIgXoyVE5ThpfqXOa95mEFtLtL-EBmNRp1L2EbXgsvK2xbNfloEV5drm_UsLzOOs2et7y3W0TxfHMB7jbuzZBHkjR6F7aanp5a-kzijcCZKSow5C0P6LtqwBjwwgMM4r61STQvdChkFh1hS64C_HBTXaz9oqCPsx5kKY4Y2u1n9HmibHslSrUo0QzlJx1zS_sabgfMGV7KQlf8hVXr1JlXDADkj0nYyJk73qbAmJLW-0xPYbcd-axRO_XqL6gaXd_LtcuF_Ovs',
-    shopId: 'PablosMerchantStand',
-    apiBaseUrl: 'https://api.printify.com/v1'
+    apiBaseUrl: '/api'  // Backend API endpoint (proxies to Printify)
 };
 
 // State management
@@ -36,27 +33,23 @@ async function loadProducts() {
     const productsContainer = document.getElementById('products-container');
     
     try {
-        // Check if API is configured
-        if (config.apiToken === 'YOUR_PRINTIFY_API_TOKEN') {
-            console.log('Using mock data. Configure API credentials in config section.');
+        // Make API call to backend which proxies to Printify
+        const response = await fetch(`${config.apiBaseUrl}/products`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch products from backend');
+        }
+        
+        const data = await response.json();
+        
+        // Check if backend is in demo mode
+        if (data.demo || !data.data || data.data.length === 0) {
+            console.log('Using mock data. Configure API credentials in .env file.');
             state.products = getMockProducts();
             state.filteredProducts = state.products;
             return;
         }
         
-        // Make actual API call to Printify
-        const response = await fetch(`${config.apiBaseUrl}/shops/${config.shopId}/products.json`, {
-            headers: {
-                'Authorization': `Bearer ${config.apiToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch products from Printify');
-        }
-        
-        const data = await response.json();
         state.products = formatPrintifyProducts(data);
         state.filteredProducts = state.products;
         
@@ -65,7 +58,7 @@ async function loadProducts() {
         productsContainer.innerHTML = `
             <div class="loading">
                 <p>Error loading products. Using demo data.</p>
-                <p style="font-size: 0.9rem; color: #999;">Configure your Printify API credentials in app.js</p>
+                <p style="font-size: 0.9rem; color: #999;">Configure your Printify API credentials in .env file</p>
             </div>
         `;
         state.products = getMockProducts();
@@ -385,36 +378,44 @@ async function processOrder() {
     console.log('Processing order:', formData);
     
     try {
-        // In a real implementation, this would call your backend API
-        // which would then create orders in Printify
-        if (config.apiToken !== 'YOUR_PRINTIFY_API_TOKEN') {
-            // Example Printify order creation (simplified)
-            const nameParts = formData.name.split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'Customer';
-            
-            const orderData = {
-                external_id: `ORDER-${Date.now()}`,
-                line_items: state.cart.map(item => ({
-                    product_id: item.id,
-                    quantity: item.quantity
-                })),
-                shipping_method: 1,
-                send_shipping_notification: false,
-                address_to: {
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: formData.email,
-                    address1: formData.address,
-                    city: formData.city,
-                    zip: formData.zip,
-                    country: formData.country
-                }
-            };
-            
-            // This is where you'd make the API call to create the order
-            console.log('Order data for Printify:', orderData);
+        // Create order via backend API
+        const nameParts = formData.name.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'Customer';
+        
+        const orderData = {
+            external_id: `ORDER-${Date.now()}`,
+            line_items: state.cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity
+            })),
+            shipping_method: 1,
+            send_shipping_notification: false,
+            address_to: {
+                first_name: firstName,
+                last_name: lastName,
+                email: formData.email,
+                address1: formData.address,
+                city: formData.city,
+                zip: formData.zip,
+                country: formData.country
+            }
+        };
+        
+        // Send order to backend API
+        const response = await fetch(`${config.apiBaseUrl}/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create order');
         }
+        
+        console.log('Order created successfully');
         
         // Show success message
         showNotification('Order placed successfully! Thank you for your purchase.');
