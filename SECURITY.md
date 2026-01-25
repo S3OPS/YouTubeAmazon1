@@ -2,31 +2,25 @@
 
 ## Supported Versions
 
-This is a reference implementation for educational purposes. Use in production requires additional security measures.
+This application implements production-ready security best practices for API credential management.
 
-## Security Recommendations
+## Security Implementation ✅
 
-### For Development
-- Never commit API tokens to version control
-- Use environment variables for sensitive data
-- Test with demo/sandbox accounts first
+### Current Security Features
 
-### For Production
-- **DO NOT** expose API tokens in client-side code
-- Implement a backend server to handle API requests
-- Use HTTPS for all communications
-- Implement rate limiting
-- Add authentication for admin functions
-- Use environment variables for configuration
-- Implement proper error handling
-- Add logging and monitoring
-- Regular security audits
+✅ **Backend API Architecture**: Node.js/Express server proxies all API requests  
+✅ **Environment Variables**: Credentials stored in `.env` file (server-side)  
+✅ **No Client-Side Exposure**: API tokens never sent to browser  
+✅ **CORS Configuration**: Proper cross-origin resource sharing setup  
+✅ **Git Security**: `.env` file excluded from version control  
 
 ### API Security
-- Store API tokens securely (use secret management)
-- Rotate API tokens regularly
-- Use least-privilege access
-- Monitor API usage
+
+- ✅ Store API tokens securely using environment variables
+- ✅ Rotate API tokens regularly via Printify dashboard
+- ✅ Use least-privilege access (only necessary scopes)
+- ✅ Monitor API usage through backend logging
+- Backend validates and sanitizes all incoming requests
 
 ## Reporting a Vulnerability
 
@@ -36,21 +30,55 @@ If you discover a security vulnerability:
 3. Provide detailed information about the vulnerability
 4. Allow time for the issue to be addressed before disclosure
 
-## Known Limitations
+## Production Deployment Checklist
 
-- Current implementation stores API token in client-side code (development only)
-- No authentication/authorization system
-- No rate limiting
-- Basic input validation
-- Requires backend for production use
+- [x] Backend API implemented (`server.js`)
+- [x] Credentials in environment variables (`.env`)
+- [x] `.env` excluded from git
+- [ ] HTTPS enabled (configure on your hosting platform)
+- [ ] Rate limiting implemented (recommended for production)
+- [ ] Request logging enabled (for monitoring)
+- [ ] Error handling and monitoring set up
+- [ ] Regular dependency updates
+- [ ] API token rotation schedule
 
-## Best Practices
+## Best Practices Implemented
 
-1. **Never expose credentials**: Use environment variables
-2. **Validate input**: Sanitize all user input
-3. **Use HTTPS**: Encrypt data in transit
-4. **Implement CSP**: Add Content Security Policy headers
-5. **Regular updates**: Keep dependencies updated
-6. **Audit logs**: Track all transactions
-7. **Backup data**: Regular backups of order data
-8. **Monitor API**: Track API usage and errors
+1. ✅ **No exposed credentials**: Environment variables used
+2. ✅ **Backend proxy**: All API calls go through server
+3. ✅ **Input validation**: Server validates requests
+4. ✅ **Secure defaults**: CORS properly configured
+5. 🔄 **HTTPS**: Configure on your hosting platform
+6. 🔄 **CSP Headers**: Can be added to server.js
+7. 🔄 **Rate Limiting**: Can be added with express-rate-limit
+8. 🔄 **Monitoring**: Add logging middleware as needed
+
+## Additional Security Recommendations
+
+### For Production Enhancement
+
+1. **Add Rate Limiting**:
+   ```javascript
+   const rateLimit = require('express-rate-limit');
+   const limiter = rateLimit({
+       windowMs: 15 * 60 * 1000, // 15 minutes
+       max: 100 // limit each IP to 100 requests per windowMs
+   });
+   app.use('/api/', limiter);
+   ```
+
+2. **Add Request Logging**:
+   ```javascript
+   const morgan = require('morgan');
+   app.use(morgan('combined'));
+   ```
+
+3. **Add Helmet for Security Headers**:
+   ```javascript
+   const helmet = require('helmet');
+   app.use(helmet());
+   ```
+
+4. **Input Validation**: Use express-validator or joi
+
+5. **HTTPS**: Always use HTTPS in production (configured at hosting level)

@@ -18,7 +18,8 @@ An automated dropshipping page powered by Printify API. This application provide
 
 - A Printify account ([sign up here](https://printify.com))
 - Printify API token
-- A web browser
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
 
 ### Setup Instructions
 
@@ -29,36 +30,28 @@ An automated dropshipping page powered by Printify API. This application provide
    - Note your Shop ID
 
 2. **Configure the application**:
-   - Open `app.js`
-   - Replace the configuration values:
-     ```javascript
-     const config = {
-         apiToken: 'YOUR_PRINTIFY_API_TOKEN',  // Your API token
-         shopId: 'YOUR_SHOP_ID',                // Your Shop ID
-         apiBaseUrl: 'https://api.printify.com/v1'
-     };
+   - Copy `.env.example` to `.env`
+   - Edit `.env` and add your credentials:
+     ```
+     PRINTIFY_API_TOKEN=your_api_token_here
+     PRINTIFY_SHOP_ID=your_shop_id_here
+     PRINTIFY_API_BASE_URL=https://api.printify.com/v1
+     PORT=3000
      ```
 
-3. **Open the application**:
-   - Simply open `index.html` in your web browser
-   - Or host the files on any web server
+3. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-### Using a Local Server (Recommended)
+4. **Start the backend server**:
+   ```bash
+   npm start
+   ```
 
-For better development experience and to avoid CORS issues:
-
-```bash
-# Using Python
-python -m http.server 8000
-
-# Using Node.js
-npx http-server -p 8000
-
-# Using PHP
-php -S localhost:8000
-```
-
-Then visit `http://localhost:8000` in your browser.
+5. **Open the application**:
+   - Visit `http://localhost:3000` in your web browser
+   - The backend API will proxy all requests to Printify securely
 
 ## Usage
 
@@ -84,18 +77,32 @@ The application automatically:
 .
 ├── index.html          # Main HTML page
 ├── styles.css          # Styling and responsive design
-├── app.js             # Application logic and Printify integration
+├── app.js             # Frontend application logic
+├── server.js          # Backend API server (proxies Printify API)
+├── package.json       # Node.js dependencies
+├── .env               # Environment variables (not in git)
+├── .env.example       # Environment configuration template
 ├── README.md          # This file
-├── SECURITY.md        # Security guidelines
-└── .env.example       # Environment configuration template
+└── SECURITY.md        # Security guidelines
 ```
 
 ## API Integration
 
-The application uses the Printify API v1 for:
+The application uses a secure backend API architecture:
 
-- **GET /shops/{shop_id}/products.json**: Fetch all products
-- **POST /shops/{shop_id}/orders.json**: Create new orders
+### Backend API Endpoints
+
+- **GET /api/products**: Fetch all products (proxies to Printify)
+- **GET /api/products/:productId**: Fetch single product
+- **POST /api/orders**: Create new order (proxies to Printify)
+- **GET /api/health**: Health check endpoint
+
+### Security Benefits
+
+✅ **API credentials stored server-side** in environment variables  
+✅ **No credentials exposed to browser** or client-side code  
+✅ **Backend proxies all Printify API calls** securely  
+✅ **CORS handled properly** by the backend server  
 
 ### API Response Handling
 
@@ -142,34 +149,59 @@ Customize the checkout process:
 
 ### Security Considerations
 
-⚠️ **Important**: Never expose your API token in client-side code in production!
+✅ **Backend API Implemented**: This application now uses a secure backend architecture
 
-For production deployment:
+The application includes:
+1. ✅ **Server-side API**: Node.js/Express backend (`server.js`)
+2. ✅ **Secure credential storage**: Environment variables in `.env` file
+3. ✅ **API proxy**: All Printify requests go through the backend
+4. ✅ **No exposed tokens**: Client-side code never sees API credentials
 
-1. **Use a Backend**: Create a server-side API that:
-   - Stores API credentials securely
-   - Proxies requests to Printify
-   - Handles authentication
-   - Processes payments
+### Deployment Options
 
-2. **Environment Variables**: Use environment variables for sensitive data
+#### Option 1: Heroku
 
-3. **HTTPS**: Always use HTTPS in production
+1. Install Heroku CLI
+2. Create a Heroku app:
+   ```bash
+   heroku create your-app-name
+   ```
+3. Set environment variables:
+   ```bash
+   heroku config:set PRINTIFY_API_TOKEN=your_token
+   heroku config:set PRINTIFY_SHOP_ID=your_shop_id
+   ```
+4. Deploy:
+   ```bash
+   git push heroku main
+   ```
 
-### Backend Implementation Example
+#### Option 2: DigitalOcean / AWS / Azure
 
-```javascript
-// Example Node.js/Express backend endpoint
-app.post('/api/products', async (req, res) => {
-    const response = await fetch('https://api.printify.com/v1/shops/{shop_id}/products.json', {
-        headers: {
-            'Authorization': `Bearer ${process.env.PRINTIFY_API_TOKEN}`
-        }
-    });
-    const data = await response.json();
-    res.json(data);
-});
-```
+1. Set up a VPS or App Service
+2. Clone your repository
+3. Create `.env` file with your credentials
+4. Install dependencies: `npm install`
+5. Start the server: `npm start`
+6. Configure a process manager (PM2 recommended):
+   ```bash
+   npm install -g pm2
+   pm2 start server.js
+   ```
+
+#### Option 3: Vercel / Netlify (with Serverless Functions)
+
+For these platforms, you'll need to adapt the backend to serverless functions, but the security principles remain the same.
+
+### Production Checklist
+
+- [ ] Use HTTPS (SSL certificate)
+- [ ] Set environment variables on your hosting platform
+- [ ] Never commit `.env` file to git
+- [ ] Enable rate limiting
+- [ ] Add request logging
+- [ ] Implement error monitoring
+- [ ] Set up backups
 
 ## Printify API Documentation
 
