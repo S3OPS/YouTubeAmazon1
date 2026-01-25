@@ -23,6 +23,21 @@ An automated dropshipping page powered by Printify API. This application provide
 
 ### Setup Instructions
 
+**Quick Setup (Recommended):**
+
+Run the automated setup wizard:
+```bash
+npm run setup
+```
+
+The setup wizard will:
+- Create your `.env` configuration file
+- Validate your environment settings
+- Provide step-by-step instructions
+- Guide you through getting API credentials
+
+**Manual Setup:**
+
 1. **Get your Printify API credentials**:
    - Log in to your Printify account
    - Go to Settings → API

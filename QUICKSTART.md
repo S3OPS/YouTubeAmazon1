@@ -10,6 +10,19 @@
 
 ### Quick Setup (3 Steps)
 
+**Option A: Automated Setup (Recommended)**
+
+1. **Run the setup wizard:**
+   ```bash
+   npm run setup
+   ```
+   Follow the on-screen instructions to configure your environment.
+
+2. **Install dependencies** (`npm install`)
+3. **Start server** (`npm start`)
+
+**Option B: Manual Setup**
+
 1. **Configure credentials** (copy `.env.example` to `.env` and add your Printify API token)
 2. **Install dependencies** (`npm install`)
 3. **Start server** (`npm start`)
