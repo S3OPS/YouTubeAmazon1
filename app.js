@@ -2,8 +2,45 @@
 
 // Configuration - Backend API endpoint
 const config = {
-    apiBaseUrl: '/api'  // Backend API endpoint (proxies to Printify)
+    apiBaseUrl: window.API_BASE_URL || '/api'  // Backend API endpoint (proxies to Printify)
 };
+
+// Helper function to safely escape HTML to prevent XSS attacks
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Helper function to convert dollars to cents for precise calculations
+function dollarsToCents(dollars) {
+    return Math.round(parseFloat(dollars) * 100);
+}
+
+// Helper function to convert cents to dollars for display
+function centsToDollars(cents) {
+    return (cents / 100).toFixed(2);
+}
+
+// Validate email format
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Validate required field
+function isValidRequired(value) {
+    return value && value.trim().length > 0;
+}
+
+// Validate zip code (basic)
+function isValidZip(zip) {
+    return zip && zip.trim().length >= 3;
+}
 
 // State management
 const state = {
@@ -16,16 +53,25 @@ const state = {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Initializing Printify Dropshipping Store...');
-    
-    // Load mock products (replace with actual API call when configured)
-    await loadProducts();
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Render products
-    renderProducts();
+    try {
+        // Load products (uses API or mock data)
+        await loadProducts();
+        
+        // Set up event listeners
+        setupEventListeners();
+        
+        // Render products
+        renderProducts();
+    } catch (error) {
+        console.error('Failed to initialize application:', error);
+        const productsContainer = document.getElementById('products-container');
+        if (productsContainer) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'loading';
+            errorDiv.textContent = 'Error initializing application. Please refresh the page.';
+            productsContainer.appendChild(errorDiv);
+        }
+    }
 });
 
 // Load products from Printify API
@@ -44,7 +90,6 @@ async function loadProducts() {
         
         // Check if backend is in demo mode
         if (data.demo || !data.data || data.data.length === 0) {
-            console.log('Using mock data. Configure API credentials in .env file.');
             state.products = getMockProducts();
             state.filteredProducts = state.products;
             return;
@@ -54,13 +99,22 @@ async function loadProducts() {
         state.filteredProducts = state.products;
         
     } catch (error) {
-        console.error('Error loading products:', error);
-        productsContainer.innerHTML = `
-            <div class="loading">
-                <p>Error loading products. Using demo data.</p>
-                <p style="font-size: 0.9rem; color: #999;">Configure your Printify API credentials in .env file</p>
-            </div>
-        `;
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'loading';
+        
+        const errorText = document.createElement('p');
+        errorText.textContent = 'Error loading products. Using demo data.';
+        errorDiv.appendChild(errorText);
+        
+        const configText = document.createElement('p');
+        configText.style.fontSize = '0.9rem';
+        configText.style.color = '#999';
+        configText.textContent = 'Configure your Printify API credentials in .env file';
+        errorDiv.appendChild(configText);
+        
+        productsContainer.innerHTML = '';
+        productsContainer.appendChild(errorDiv);
+        
         state.products = getMockProducts();
         state.filteredProducts = state.products;
     }
@@ -168,38 +222,75 @@ function renderProducts() {
     const productsContainer = document.getElementById('products-container');
     
     if (state.filteredProducts.length === 0) {
-        productsContainer.innerHTML = '<div class="loading">No products found</div>';
+        productsContainer.innerHTML = '';
+        const noProductsDiv = document.createElement('div');
+        noProductsDiv.className = 'loading';
+        noProductsDiv.textContent = 'No products found';
+        productsContainer.appendChild(noProductsDiv);
         return;
     }
     
-    const productsHTML = state.filteredProducts.map(product => `
-        <div class="product-card" data-id="${product.id}">
-            <div class="product-image">
-                ${product.image 
-                    ? `<img src="${product.image}" alt="${product.title}" style="width: 100%; height: 100%; object-fit: cover;">` 
-                    : `<span>${product.emoji || '🎁'}</span>`
-                }
-            </div>
-            <div class="product-info">
-                <div class="product-title">${product.title}</div>
-                <div class="product-description">${product.description}</div>
-                <div class="product-price">$${product.price}</div>
-                <button class="btn-primary add-to-cart" data-id="${product.id}">
-                    Add to Cart
-                </button>
-            </div>
-        </div>
-    `).join('');
+    // Clear container
+    productsContainer.innerHTML = '';
     
-    productsContainer.innerHTML = productsHTML;
-    
-    // Add click listeners to add-to-cart buttons
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        button.addEventListener('click', (e) => {
+    // Create product cards using safe DOM methods
+    state.filteredProducts.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.setAttribute('data-id', product.id);
+        
+        // Product image
+        const productImage = document.createElement('div');
+        productImage.className = 'product-image';
+        
+        if (product.image) {
+            const img = document.createElement('img');
+            img.src = product.image;
+            img.alt = escapeHtml(product.title);
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            productImage.appendChild(img);
+        } else {
+            const emoji = document.createElement('span');
+            emoji.textContent = product.emoji || '🎁';
+            productImage.appendChild(emoji);
+        }
+        
+        // Product info
+        const productInfo = document.createElement('div');
+        productInfo.className = 'product-info';
+        
+        const productTitle = document.createElement('div');
+        productTitle.className = 'product-title';
+        productTitle.textContent = product.title;
+        
+        const productDescription = document.createElement('div');
+        productDescription.className = 'product-description';
+        productDescription.textContent = product.description;
+        
+        const productPrice = document.createElement('div');
+        productPrice.className = 'product-price';
+        productPrice.textContent = `$${product.price}`;
+        
+        const addButton = document.createElement('button');
+        addButton.className = 'btn-primary add-to-cart';
+        addButton.setAttribute('data-id', product.id);
+        addButton.textContent = 'Add to Cart';
+        addButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            const productId = button.dataset.id;
-            addToCart(productId);
+            addToCart(product.id);
         });
+        
+        productInfo.appendChild(productTitle);
+        productInfo.appendChild(productDescription);
+        productInfo.appendChild(productPrice);
+        productInfo.appendChild(addButton);
+        
+        productCard.appendChild(productImage);
+        productCard.appendChild(productInfo);
+        
+        productsContainer.appendChild(productCard);
     });
 }
 
@@ -250,34 +341,60 @@ function renderCart() {
     const cartTotal = document.getElementById('cart-total');
     
     if (state.cart.length === 0) {
-        cartItems.innerHTML = '<p style="text-align: center; padding: 2rem; color: #999;">Your cart is empty</p>';
+        cartItems.innerHTML = '';
+        const emptyMessage = document.createElement('p');
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.padding = '2rem';
+        emptyMessage.style.color = '#999';
+        emptyMessage.textContent = 'Your cart is empty';
+        cartItems.appendChild(emptyMessage);
         cartTotal.textContent = '0.00';
         return;
     }
     
-    const cartHTML = state.cart.map(item => `
-        <div class="cart-item">
-            <div class="cart-item-info">
-                <div class="cart-item-title">${item.title}</div>
-                <div class="cart-item-price">$${item.price} × ${item.quantity}</div>
-            </div>
-            <button class="cart-item-remove" data-id="${item.id}">Remove</button>
-        </div>
-    `).join('');
+    // Clear cart items
+    cartItems.innerHTML = '';
     
-    // Calculate total (Note: For production, use integer-based calculations in cents to avoid floating-point precision errors)
-    const total = state.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+    // Calculate total in cents for precision
+    let totalCents = 0;
     
-    cartItems.innerHTML = cartHTML;
-    cartTotal.textContent = total.toFixed(2);
-    
-    // Add remove listeners
-    document.querySelectorAll('.cart-item-remove').forEach(button => {
-        button.addEventListener('click', () => {
-            const productId = button.dataset.id;
-            removeFromCart(productId);
+    // Create cart items using safe DOM methods
+    state.cart.forEach(item => {
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
+        
+        const cartItemInfo = document.createElement('div');
+        cartItemInfo.className = 'cart-item-info';
+        
+        const cartItemTitle = document.createElement('div');
+        cartItemTitle.className = 'cart-item-title';
+        cartItemTitle.textContent = item.title;
+        
+        const cartItemPrice = document.createElement('div');
+        cartItemPrice.className = 'cart-item-price';
+        cartItemPrice.textContent = `$${item.price} × ${item.quantity}`;
+        
+        const removeButton = document.createElement('button');
+        removeButton.className = 'cart-item-remove';
+        removeButton.setAttribute('data-id', item.id);
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+            removeFromCart(item.id);
         });
+        
+        cartItemInfo.appendChild(cartItemTitle);
+        cartItemInfo.appendChild(cartItemPrice);
+        cartItem.appendChild(cartItemInfo);
+        cartItem.appendChild(removeButton);
+        
+        cartItems.appendChild(cartItem);
+        
+        // Add to total (using cents for precision)
+        const itemCents = dollarsToCents(item.price);
+        totalCents += itemCents * item.quantity;
     });
+    
+    cartTotal.textContent = centsToDollars(totalCents);
 }
 
 // Show notification
@@ -364,18 +481,59 @@ function setupEventListeners() {
 
 // Process order
 async function processOrder() {
-    const formData = {
-        name: document.getElementById('customer-name').value,
-        email: document.getElementById('customer-email').value,
-        address: document.getElementById('customer-address').value,
-        city: document.getElementById('customer-city').value,
-        zip: document.getElementById('customer-zip').value,
-        country: document.getElementById('customer-country').value,
-        items: state.cart,
-        total: state.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
-    };
+    // Get form values
+    const name = document.getElementById('customer-name').value;
+    const email = document.getElementById('customer-email').value;
+    const address = document.getElementById('customer-address').value;
+    const city = document.getElementById('customer-city').value;
+    const zip = document.getElementById('customer-zip').value;
+    const country = document.getElementById('customer-country').value;
     
-    console.log('Processing order:', formData);
+    // Validate all fields
+    const errors = [];
+    
+    if (!isValidRequired(name)) {
+        errors.push('Name is required');
+    }
+    if (!isValidEmail(email)) {
+        errors.push('Valid email is required');
+    }
+    if (!isValidRequired(address)) {
+        errors.push('Address is required');
+    }
+    if (!isValidRequired(city)) {
+        errors.push('City is required');
+    }
+    if (!isValidZip(zip)) {
+        errors.push('Valid zip code is required');
+    }
+    if (!isValidRequired(country)) {
+        errors.push('Country is required');
+    }
+    
+    // Show validation errors
+    if (errors.length > 0) {
+        showNotification('Please fix: ' + errors.join(', '));
+        return;
+    }
+    
+    // Calculate total in cents for precision
+    let totalCents = 0;
+    state.cart.forEach(item => {
+        const itemCents = dollarsToCents(item.price);
+        totalCents += itemCents * item.quantity;
+    });
+    
+    const formData = {
+        name: name,
+        email: email,
+        address: address,
+        city: city,
+        zip: zip,
+        country: country,
+        items: state.cart,
+        total: centsToDollars(totalCents)
+    };
     
     try {
         // Create order via backend API
@@ -412,10 +570,9 @@ async function processOrder() {
         });
         
         if (!response.ok) {
-            throw new Error('Failed to create order');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create order');
         }
-        
-        console.log('Order created successfully');
         
         // Show success message
         showNotification('Order placed successfully! Thank you for your purchase.');
@@ -428,8 +585,7 @@ async function processOrder() {
         document.getElementById('checkout-form').reset();
         
     } catch (error) {
-        console.error('Error processing order:', error);
-        showNotification('Error processing order. Please try again.');
+        showNotification('Error processing order: ' + error.message);
     }
 }
 

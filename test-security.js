@@ -53,7 +53,7 @@ test('server.js has /api/orders endpoint', serverJs.includes("app.post('/api/ord
 test('server.js has /api/health endpoint', serverJs.includes("app.get('/api/health'"));
 
 // Test 7: app.js should call backend API
-test('app.js calls backend API', appJs.includes("apiBaseUrl: '/api'"));
+test('app.js calls backend API', appJs.includes("apiBaseUrl:") && appJs.includes("'/api'"));
 test('app.js does not directly call Printify API', !appJs.includes('api.printify.com'));
 
 // Test 8: Backend has proper error handling
