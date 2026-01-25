@@ -1,90 +1,117 @@
 # Printify Store Setup Guide
 
-## ✅ Configuration Complete!
+## ✅ Backend API Configuration
 
-Your Printify dropshipping store has been configured with:
-- **API Token**: Configured in `app.js`
-- **Shop ID**: `PablosMerchantStand`
-- **API Base URL**: `https://api.printify.com/v1`
+Your Printify dropshipping store now uses a secure backend architecture:
+- **Backend Server**: Node.js/Express (`server.js`)
+- **API Credentials**: Stored in `.env` file (server-side)
+- **Security**: API tokens never exposed to the browser
 
-## 🚀 Hosting the Store
+## 🚀 Quick Start
 
-### Option 1: Python HTTP Server (Recommended for Testing)
+### Step 1: Configure Environment Variables
 
-The store is currently running on:
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` and add your Printify credentials:
+   ```
+   PRINTIFY_API_TOKEN=your_api_token_here
+   PRINTIFY_SHOP_ID=your_shop_id_here
+   PRINTIFY_API_BASE_URL=https://api.printify.com/v1
+   PORT=3000
+   ```
+
+### Step 2: Install Dependencies
+
 ```bash
-cd /home/runner/work/666/666
-python3 -m http.server 8000
+npm install
 ```
 
-Access at: **http://localhost:8000**
-
-### Option 2: Node.js HTTP Server
+### Step 3: Start the Server
 
 ```bash
-npx http-server -p 8000
+npm start
 ```
 
-### Option 3: PHP Built-in Server
+The server will start on http://localhost:3000
 
-```bash
-php -S localhost:8000
+### Step 4: Access Your Store
+
+Open your browser and go to:
+```
+http://localhost:3000
 ```
 
-### Option 4: Production Hosting
+## 🔒 Security Features
+
+✅ **API credentials stored server-side** in environment variables  
+✅ **No credentials in client-side code** (app.js is clean)  
+✅ **Backend proxies all Printify API calls**  
+✅ **CORS properly configured**  
+✅ **`.env` file excluded from git**
+
+## 🌐 Production Hosting
 
 For production deployment, you can host on:
 
-1. **GitHub Pages**
-   - Push your repository to GitHub
-   - Go to Settings → Pages
-   - Select branch and folder
-   - Your site will be live at `https://<username>.github.io/<repo>`
+1. **Heroku** (Recommended for Node.js apps)
+   - Sign up at https://heroku.com
+   - Install Heroku CLI
+   - Create app: `heroku create your-app-name`
+   - Set environment variables in Heroku dashboard or CLI
+   - Deploy: `git push heroku main`
 
-2. **Netlify** (Recommended)
-   - Sign up at https://netlify.com
-   - Drag and drop your folder or connect GitHub repo
-   - Instant deployment with HTTPS
-   - Free SSL certificate
-
-3. **Vercel**
-   - Sign up at https://vercel.com
-   - Connect your GitHub repository
+2. **DigitalOcean App Platform**
+   - Sign up at https://digitalocean.com
+   - Create a new app from your GitHub repository
+   - Configure environment variables in the dashboard
    - Automatic deployments on push
 
-4. **Any Web Server**
-   - Upload `index.html`, `app.js`, and `styles.css` to your web server
-   - No special configuration needed - just static files!
+3. **AWS Elastic Beanstalk**
+   - Deploy Node.js application
+   - Configure environment variables
+   - Set up auto-scaling as needed
 
-## 📝 Important Notes
+4. **Any VPS (DigitalOcean, Linode, Vultr)**
+   - Set up a Linux server
+   - Install Node.js
+   - Clone repository and configure `.env`
+   - Use PM2 to keep server running
+   - Set up nginx as reverse proxy
 
-### API Limitations
+## 📝 Architecture Overview
 
-⚠️ **Security Warning**: The current setup has API credentials in client-side code (`app.js`). This is acceptable for:
-- Development and testing
-- Personal use
-- Internal tools
+### Before (Insecure)
+```
+Browser → Printify API (with exposed token)
+```
 
-For production e-commerce stores, you should:
+### After (Secure) ✅
+```
+Browser → Backend API → Printify API
+           (with credentials in .env)
+```
 
-1. **Create a Backend API** (Node.js, Python, PHP, etc.)
-2. **Move credentials to server-side** environment variables
-3. **Proxy all Printify API calls** through your backend
-4. **Never expose API tokens** to the browser
+The backend server (`server.js`) now:
+- Stores credentials securely in environment variables
+- Provides API endpoints that the frontend calls
+- Proxies requests to Printify API
+- Never exposes sensitive data to the browser
 
-### CORS and Browser Restrictions
-
-If you see errors like "Failed to fetch" or "ERR_BLOCKED_BY_CLIENT":
-- This is due to browser security (CORS) or ad blockers
-- The app will automatically use demo products as fallback
-- For real API integration, you need a backend proxy (see above)
-
-### Demo Mode
+## 📝 Demo Mode
 
 When API credentials are not properly configured or API calls fail, the store runs in demo mode with mock products. This allows you to:
 - Test the UI and functionality
 - See the design and layout
 - Understand the workflow before connecting to real API
+
+The backend will automatically fall back to demo mode if:
+- `.env` file is missing
+- Printify API credentials are not set
+- Printify API is unavailable
 
 ## 🎨 Customization
 
