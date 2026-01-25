@@ -1,16 +1,50 @@
 # Printify Dropshipping Store
 
-An automated dropshipping page powered by Printify API. This application provides a complete e-commerce frontend that integrates with Printify for print-on-demand products.
+An automated, production-ready dropshipping page powered by Printify API. This application provides a complete e-commerce frontend with enterprise-grade security, monitoring, and automation features.
 
-## Features
+## 🌟 Features
 
-- 🛍️ **Product Catalog**: Display products from your Printify shop
+### Core Functionality
+- 🛍️ **Product Catalog**: Display products from your Printify shop with pagination
 - 🔍 **Search & Filter**: Search products by name and filter by category
 - 🛒 **Shopping Cart**: Add products to cart and manage quantities
-- 💳 **Checkout System**: Complete order form with customer details
+- 💳 **Checkout System**: Complete order form with validation
 - 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
 - 🚀 **Automated Integration**: Syncs with Printify API for product data and order processing
 - 🎨 **Modern UI**: Clean, professional design with smooth animations
+
+### Security Features 🔒
+- ✅ **XSS Protection**: Safe DOM manipulation, no innerHTML vulnerabilities
+- ✅ **Input Validation**: Client and server-side validation with express-validator
+- ✅ **Rate Limiting**: API endpoint protection (100 req/15min per IP)
+- ✅ **Security Headers**: Helmet.js with CSP, X-Frame-Options, etc.
+- ✅ **CORS Whitelist**: Configurable allowed origins for production
+- ✅ **Environment-based Security**: Strict mode in production
+- ✅ **Financial Precision**: Cents-based calculations for accurate money handling
+- ✅ **Secure Credentials**: Server-side API tokens, never exposed to client
+
+### DevOps & Automation 🤖
+- ✅ **Docker Support**: Multi-stage Dockerfile with non-root user
+- ✅ **Docker Compose**: One-command deployment
+- ✅ **CI/CD Pipeline**: Multi-job GitHub Actions (lint, security, tests, build)
+- ✅ **Automated Dependency Updates**: Dependabot configuration
+- ✅ **Code Quality**: ESLint + Prettier with pre-commit hooks
+- ✅ **Security Auditing**: npm audit in CI pipeline
+- ✅ **Health Checks**: Built-in health endpoint and Docker health checks
+
+### Monitoring & Logging 📊
+- ✅ **Structured Logging**: Winston logger with JSON formatting
+- ✅ **Request Tracking**: UUID-based request IDs
+- ✅ **Performance Monitoring**: Request duration logging
+- ✅ **Error Tracking**: Detailed error logs with context
+- ✅ **Environment-aware**: Different log levels for dev/prod
+
+### Performance ⚡
+- ✅ **HTTP Caching**: Cache-Control headers on static files and API
+- ✅ **ETags**: Efficient cache validation
+- ✅ **Pagination**: Limit API responses for better performance
+- ✅ **Static Asset Caching**: 1-day cache in production
+
 
 ## Getting Started
 
