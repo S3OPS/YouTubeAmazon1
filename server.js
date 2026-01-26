@@ -8,7 +8,7 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 const logger = require('./logger');
 
 // Load environment variables
@@ -20,7 +20,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Request ID middleware for tracking
 app.use((req, res, next) => {
-    req.id = uuidv4();
+    req.id = randomUUID();
     res.setHeader('X-Request-ID', req.id);
     next();
 });
