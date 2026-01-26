@@ -1,0 +1,115 @@
+name: Dependency Auto-merge
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    auto-merge:
+        name: Auto-merge Dependabot PRs
+        runs-on: ubuntu-latest
+        if: github.actor == 'dependabot[bot]'
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+
+            - name: Get Dependabot metadata
+              id: metadata
+              uses: dependabot/fetch-metadata@v2
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Auto-approve patch updates
+              if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+              run: |
+                  gh pr review --approve "${{ github.event.pull_request.html_url }}"
+                  echo "✅ Auto-approved patch update"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Auto-approve minor updates for dev dependencies
+              if: |
+                  steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+                  steps.metadata.outputs.dependency-type == 'direct:development'
+              run: |
+                  gh pr review --approve "${{ github.event.pull_request.html_url }}"
+                  echo "✅ Auto-approved minor dev dependency update"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Enable auto-merge for patch updates
+              if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+              run: |
+                  gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"
+                  echo "✅ Enabled auto-merge for patch update"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Enable auto-merge for minor dev dependency updates
+              if: |
+                  steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+                  steps.metadata.outputs.dependency-type == 'direct:development'
+              run: |
+                  gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"
+                  echo "✅ Enabled auto-merge for minor dev dependency update"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Add comment for major updates
+              if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number,
+                        body: `🔍 **Major Version Update Detected**
+                        
+                        This is a major version update and requires manual review.
+                        
+                        **Dependency:** ${{ steps.metadata.outputs.dependency-names }}
+                        **Update Type:** ${{ steps.metadata.outputs.update-type }}
+                        
+                        Please review the changelog and test thoroughly before merging.`
+                      });
+
+            - name: Add comment for production dependency minor updates
+              if: |
+                  steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+                  steps.metadata.outputs.dependency-type == 'direct:production'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number,
+                        body: `⚠️ **Production Dependency Minor Update**
+                        
+                        This is a minor version update for a production dependency.
+                        
+                        **Dependency:** ${{ steps.metadata.outputs.dependency-names }}
+                        **Update Type:** ${{ steps.metadata.outputs.update-type }}
+                        
+                        Please review and test before merging.`
+                      });
+
+            - name: Summary
+              run: |
+                  echo "## Dependency Auto-merge Summary"
+                  echo ""
+                  echo "**Dependency:** ${{ steps.metadata.outputs.dependency-names }}"
+                  echo "**Update Type:** ${{ steps.metadata.outputs.update-type }}"
+                  echo "**Dependency Type:** ${{ steps.metadata.outputs.dependency-type }}"
+                  echo ""
+                  echo "**Auto-merge Policy:**"
+                  echo "- ✅ Patch updates: Auto-approved and auto-merged"
+                  echo "- ✅ Minor dev dependency updates: Auto-approved and auto-merged"
+                  echo "- ⚠️  Minor production dependency updates: Requires manual review"
+                  echo "- ⚠️  Major updates: Requires manual review"

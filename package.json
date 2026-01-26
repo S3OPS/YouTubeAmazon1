@@ -22,7 +22,9 @@
         "docker:stop": "docker-compose down",
         "docker:logs": "docker-compose logs -f",
         "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
-        "ci": "npm run lint && npm run format:check && npm test"
+        "ci": "npm run lint && npm run format:check && npm test",
+        "automation:dashboard": "bash automation-dashboard.sh",
+        "automation:validate": "node validate-automation.js"
     },
     "keywords": [
         "printify",
