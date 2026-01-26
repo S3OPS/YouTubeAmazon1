@@ -42,6 +42,27 @@ print_warning() {
     echo -e "${YELLOW}⚠${NC} $1"
 }
 
+stop_process() {
+    local pid=$1
+    local reason=$2
+
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        if [ -n "$reason" ]; then
+            print_warning "$reason"
+        fi
+        kill "$pid" 2>/dev/null || true
+        local wait_count=0
+        while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
+            sleep 1
+            wait_count=$((wait_count + 1))
+        done
+        if kill -0 "$pid" 2>/dev/null; then
+            print_warning "Process $pid did not stop gracefully, forcing shutdown..."
+            kill -9 "$pid" 2>/dev/null || true
+        fi
+    fi
+}
+
 # Function to perform the build step (CRITICAL - life and death matter!)
 build_step() {
     echo ""
@@ -112,6 +133,11 @@ configure_step() {
                 print_error "Setup wizard failed"
                 return 1
             fi
+            if [ ! -f .env ] && [ -f .env.example ]; then
+                print_status "Creating .env from .env.example..."
+                cp .env.example .env
+                print_success ".env file created (please update with your credentials)"
+            fi
         elif [ -f .env.example ]; then
             print_status "Creating .env from .env.example..."
             cp .env.example .env
@@ -166,21 +192,11 @@ test_step() {
     if command -v lsof &> /dev/null; then
         for pid in $(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null); do
             if [ -n "$pid" ]; then
-                print_warning "Port $SERVER_PORT in use (PID $pid). Stopping existing process..."
-                kill "$pid" 2>/dev/null || true
-                local wait_count=0
-                while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
-                    sleep 1
-                    wait_count=$((wait_count + 1))
-                done
-                if kill -0 "$pid" 2>/dev/null; then
-                    print_warning "Process $pid did not stop gracefully, forcing shutdown..."
-                    kill -9 "$pid" 2>/dev/null || true
-                fi
+                stop_process "$pid" "Port $SERVER_PORT in use (PID $pid). Stopping existing process..."
             fi
         done
     fi
-    npm start &
+    node server.js &
     SERVER_PID=$!
     echo $SERVER_PID > "$PID_FILE"
     print_status "Server started with PID $SERVER_PID"
@@ -223,18 +239,7 @@ test_step() {
     print_status "Stopping server..."
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE" 2>/dev/null)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-            kill "$pid" 2>/dev/null || true
-            local wait_count=0
-            while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
-                sleep 1
-                wait_count=$((wait_count + 1))
-            done
-            if kill -0 "$pid" 2>/dev/null; then
-                print_warning "Server did not stop gracefully, forcing shutdown..."
-                kill -9 "$pid" 2>/dev/null || true
-            fi
-        fi
+        stop_process "$pid"
         rm -f "$PID_FILE"
     fi
     print_success "Server stopped"
