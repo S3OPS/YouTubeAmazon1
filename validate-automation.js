@@ -183,7 +183,7 @@ checkFile('automation-dashboard.sh', 'Automation dashboard');
 checkFile('validate-automation.js', 'Automation validator');
 
 // Check if scripts are executable
-const scripts = ['monitor.sh', 'automation-dashboard.sh'];
+const scripts = ['build-configure-test.sh', 'monitor.sh', 'automation-dashboard.sh'];
 scripts.forEach((script) => {
     const fullPath = path.join(process.cwd(), script);
     if (fs.existsSync(fullPath)) {

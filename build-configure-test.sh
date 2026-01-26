@@ -23,6 +23,7 @@ MAX_RETRIES=3
 CURRENT_ATTEMPT=1
 SERVER_PORT="${PORT:-3000}"
 PID_FILE="./server.pid"
+SHUTDOWN_TIMEOUT=10
 
 # Function to print status
 print_status() {
@@ -162,6 +163,23 @@ test_step() {
     
     # Run integration tests (requires server)
     print_status "Starting server for integration tests..."
+    if command -v lsof &> /dev/null; then
+        for pid in $(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null); do
+            if [ -n "$pid" ]; then
+                print_warning "Port $SERVER_PORT in use (PID $pid). Stopping existing process..."
+                kill "$pid" 2>/dev/null || true
+                local wait_count=0
+                while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
+                    sleep 1
+                    wait_count=$((wait_count + 1))
+                done
+                if kill -0 "$pid" 2>/dev/null; then
+                    print_warning "Process $pid did not stop gracefully, forcing shutdown..."
+                    kill -9 "$pid" 2>/dev/null || true
+                fi
+            fi
+        done
+    fi
     npm start &
     SERVER_PID=$!
     echo $SERVER_PID > "$PID_FILE"
@@ -208,7 +226,7 @@ test_step() {
         if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
             kill "$pid" 2>/dev/null || true
             local wait_count=0
-            while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt 10 ]; do
+            while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
                 sleep 1
                 wait_count=$((wait_count + 1))
             done
