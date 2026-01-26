@@ -22,7 +22,7 @@ Thank you for your interest in contributing to the Printify Dropshipping Store! 
 
 2. **Run the automated setup**
    ```bash
-   ./quick-start.sh
+   npm run build-configure-test
    ```
    
    Or manually:

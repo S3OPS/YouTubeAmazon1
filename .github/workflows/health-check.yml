@@ -135,10 +135,10 @@ jobs:
               if: failure()
               run: |
                   echo "📢 Sending notifications..."
-                  
+
                   # Webhook URL can be configured as repository secret
                   # Examples: SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL
-                  
+
                   if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
                     curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
                       -H 'Content-Type: application/json' \
@@ -155,7 +155,7 @@ jobs:
                         ]
                       }' || echo "⚠️  Slack notification failed"
                   fi
-                  
+
                   if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
                     curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
                       -H 'Content-Type: application/json' \
@@ -175,5 +175,5 @@ jobs:
                         }]
                       }' || echo "⚠️  Discord notification failed"
                   fi
-                  
+
                   echo "✅ Notification step completed"

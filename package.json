@@ -15,7 +15,6 @@
         "format:check": "prettier --check .",
         "setup": "node setup.js",
         "prepare": "husky",
-        "quick-start": "bash quick-start.sh",
         "monitor": "bash monitor.sh",
         "docker:build": "docker build -t printify-dropshipping:latest .",
         "docker:run": "docker-compose up -d",

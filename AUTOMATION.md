@@ -17,6 +17,7 @@ This document describes the comprehensive automation infrastructure implemented 
 9. [Rollback Automation](#rollback-automation)
 10. [Secret Validation](#secret-validation)
 11. [Automation Tools](#automation-tools)
+12. [One-Command Automation](#one-command-automation)
 
 ---
 
@@ -229,6 +230,25 @@ This document describes the comprehensive automation infrastructure implemented 
 - Formatted for readability
 
 **Status:** ✅ Fully Automated
+
+---
+
+## One-Command Automation
+
+### Build-Configure-Test Workflow (Recommended)
+
+Use the one-command workflow to validate the full automation path, including build, configuration, tests, and code-quality checks:
+
+```bash
+npm run build-configure-test
+```
+
+This workflow:
+- Ensures dependencies are installed cleanly
+- Creates or validates the `.env` file via the setup wizard
+- Starts the server and runs integration tests
+- Runs security tests and code-quality checks
+- Retries up to 3 times on failure for resilience
 
 ---
 

@@ -36,7 +36,7 @@ An automated, production-ready dropshipping page powered by Printify API. This a
 - ✅ **Automated Dependency Updates**: Dependabot configuration
 - ✅ **Pre-commit Hooks**: Husky + lint-staged for code quality
 - ✅ **Code Quality**: ESLint + Prettier enforcement
-- ✅ **Quick Start Script**: One-command setup and deployment
+- ✅ **Build-Configure-Test Script**: One-command setup and validation
 
 ### Monitoring & Logging 📊
 - ✅ **Structured Logging**: Winston logger with JSON formatting
@@ -69,28 +69,14 @@ This workflow:
 - 🔨 **Builds**: Installs dependencies with critical priority ("life and death matter")
 - ⚙️ **Configures**: Sets up environment files and validates configuration
 - 🧪 **Tests**: Runs security and integration tests with automatic server management
-- 🔄 **Retries**: Automatically repeats the entire workflow if any test fails (up to 3 attempts)
+- ✅ **Quality**: Runs lint and formatting checks
+- 🔄 **Retries**: Automatically repeats the entire workflow if any step fails (up to 3 attempts)
 
 Perfect for:
 - Initial setup and validation
 - Pre-deployment checks
 - CI/CD pipelines
 - Verifying changes after updates
-
-### Automated Setup (Alternative)
-
-Run the automated quick-start script:
-
-```bash
-./quick-start.sh
-```
-
-This will automatically:
-- Check system requirements
-- Install dependencies
-- Run the setup wizard
-- Validate configuration
-- Run tests and code quality checks
 
 ### Manual Setup
 
@@ -364,11 +350,9 @@ Potential features to add:
 
 ## 📚 Documentation
 
-- **[AUTOMATION_GUIDE.md](AUTOMATION_GUIDE.md)** - Complete guide to using all automation features
-- **[AUTOMATION.md](AUTOMATION.md)** - Automation infrastructure technical details
+- **[AUTOMATION.md](AUTOMATION.md)** - Complete guide to using automation features
 - **[SETUP.md](SETUP.md)** - Detailed setup and deployment instructions
 - **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
-- **[SCAN_SUMMARY.md](SCAN_SUMMARY.md)** - Deep scan results and fixes
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
 
 ## 🛠️ Available Commands
@@ -378,7 +362,7 @@ Potential features to add:
 npm start              # Start the server
 npm run dev            # Start in development mode
 npm run setup          # Run setup wizard
-npm run quick-start    # Automated setup and validation
+npm run build-configure-test # Automated setup and validation
 
 # Build & Deploy
 npm run build-configure-test  # Build, configure, and test workflow with retry

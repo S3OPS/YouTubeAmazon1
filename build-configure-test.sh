@@ -100,10 +100,18 @@ configure_step() {
     
     print_status "Configuring environment..."
     
-    # Check if .env exists, create from example if not
+    # Check if .env exists, create from setup wizard or example if not
     if [ ! -f .env ]; then
         print_warning ".env file not found"
-        if [ -f .env.example ]; then
+        if [ -f "setup.js" ]; then
+            print_status "Running setup wizard..."
+            if node setup.js; then
+                print_success "Setup wizard completed"
+            else
+                print_error "Setup wizard failed"
+                return 1
+            fi
+        elif [ -f .env.example ]; then
             print_status "Creating .env from .env.example..."
             cp .env.example .env
             print_success ".env file created (please update with your credentials)"
@@ -112,6 +120,11 @@ configure_step() {
         fi
     else
         print_success ".env file already exists"
+    fi
+
+    if [ ! -f .env ]; then
+        print_error ".env file is required for configuration"
+        return 1
     fi
     
     # Validate configuration files
@@ -187,13 +200,22 @@ test_step() {
         print_error "Integration tests failed!"
         test_result=1
     fi
-    
+
     # Stop the server
     print_status "Stopping server..."
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE" 2>/dev/null)
         if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
             kill "$pid" 2>/dev/null || true
+            local wait_count=0
+            while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt 10 ]; do
+                sleep 1
+                wait_count=$((wait_count + 1))
+            done
+            if kill -0 "$pid" 2>/dev/null; then
+                print_warning "Server did not stop gracefully, forcing shutdown..."
+                kill -9 "$pid" 2>/dev/null || true
+            fi
         fi
         rm -f "$PID_FILE"
     fi
@@ -204,6 +226,34 @@ test_step() {
     fi
     
     print_success "ALL TESTS PASSED!"
+    return 0
+}
+
+# Function to perform the code quality step
+quality_step() {
+    echo ""
+    echo "=================================================="
+    echo "✅ STEP 4: CODE QUALITY"
+    echo "=================================================="
+    echo ""
+
+    print_status "Running ESLint..."
+    if npm run lint; then
+        print_success "Lint checks passed"
+    else
+        print_error "Lint checks failed!"
+        return 1
+    fi
+
+    print_status "Checking formatting..."
+    if npm run format:check; then
+        print_success "Formatting checks passed"
+    else
+        print_error "Formatting checks failed!"
+        return 1
+    fi
+
+    print_success "CODE QUALITY CHECKS PASSED!"
     return 0
 }
 
@@ -233,7 +283,13 @@ run_workflow() {
         print_error "Test step failed on attempt $attempt"
         return 1
     fi
-    
+
+    # Step 4: Code Quality
+    if ! quality_step; then
+        print_error "Code quality step failed on attempt $attempt"
+        return 1
+    fi
+
     return 0
 }
 
