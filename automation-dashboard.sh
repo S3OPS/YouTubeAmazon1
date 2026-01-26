@@ -51,6 +51,7 @@ check_file ".github/workflows/auto-deploy.yml" "Auto Deployment (auto-deploy.yml
 check_file ".github/workflows/rollback.yml" "Rollback Automation (rollback.yml)"
 check_file ".github/workflows/secret-validation.yml" "Secret Validation (secret-validation.yml)"
 check_file ".github/workflows/dependency-auto-merge.yml" "Dependency Auto-merge (dependency-auto-merge.yml)"
+check_file ".github/workflows/backup.yml" "Automated Backup (backup.yml)"
 echo ""
 
 # Configuration Files Check
@@ -283,6 +284,11 @@ echo "📦 Dependency Management:"
 echo "  ✅ Dependabot PRs (weekly)"
 echo "  ✅ Auto-merge for patch updates"
 echo "  ✅ Grouped minor updates"
+echo ""
+echo "💾 Backup & Recovery:"
+echo "  ✅ Daily automated backups"
+echo "  ✅ 30-day artifact retention"
+echo "  ✅ Configuration and log backups"
 echo ""
 
 echo "═══════════════════════════════════════════════════════════════"

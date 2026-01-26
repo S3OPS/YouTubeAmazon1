@@ -268,6 +268,49 @@ This document describes the comprehensive automation infrastructure implemented 
 
 ---
 
+## Backup Automation
+
+### Automated Backup Workflow (`backup.yml`)
+
+**Triggers:**
+- Daily at 2 AM UTC (scheduled)
+- Manual dispatch with backup type selection
+
+**Backup Types:**
+1. **Full** - Everything (default)
+   - Configuration files
+   - Documentation
+   - Automation scripts
+   - Logs
+
+2. **Config** - Configuration only
+   - package.json and dependencies
+   - Docker configurations
+   - GitHub workflows
+   - Environment templates
+
+3. **Logs** - Log files only
+   - Application logs
+   - Monitoring logs
+
+**Features:**
+- ✅ Automated daily backups
+- ✅ Creates compressed archives
+- ✅ Stores as GitHub artifacts (30-day retention)
+- ✅ Includes backup metadata
+- ✅ Notification on completion/failure
+- ✅ Issue creation on failure
+
+**Restore Process:**
+1. Go to Actions → Automated Backup
+2. Find the backup run
+3. Download artifact
+4. Extract and restore files
+
+**Status:** ✅ Fully Automated
+
+---
+
 ## How to Use the Automation
 
 ### For Developers

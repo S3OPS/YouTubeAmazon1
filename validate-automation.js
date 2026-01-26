@@ -110,7 +110,8 @@ const workflows = [
     'auto-deploy.yml',
     'rollback.yml',
     'secret-validation.yml',
-    'dependency-auto-merge.yml'
+    'dependency-auto-merge.yml',
+    'backup.yml'
 ];
 
 workflows.forEach(workflow => {

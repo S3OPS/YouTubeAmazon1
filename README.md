@@ -344,7 +344,8 @@ Potential features to add:
 
 ## 📚 Documentation
 
-- **[AUTOMATION.md](AUTOMATION.md)** - Complete automation infrastructure guide
+- **[AUTOMATION_GUIDE.md](AUTOMATION_GUIDE.md)** - Complete guide to using all automation features
+- **[AUTOMATION.md](AUTOMATION.md)** - Automation infrastructure technical details
 - **[SETUP.md](SETUP.md)** - Detailed setup and deployment instructions
 - **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
 - **[SCAN_SUMMARY.md](SCAN_SUMMARY.md)** - Deep scan results and fixes
@@ -380,6 +381,10 @@ npm run docker:prod    # Run in production mode
 
 # Monitoring
 npm run monitor        # Start health monitoring
+
+# Automation
+npm run automation:dashboard  # View automation status
+npm run automation:validate   # Validate automation setup
 ```
 
 ## Contributing
