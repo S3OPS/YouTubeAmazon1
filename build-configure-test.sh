@@ -21,6 +21,8 @@ NC='\033[0m' # No Color
 # Configuration
 MAX_RETRIES=3
 CURRENT_ATTEMPT=1
+SERVER_PORT="${PORT:-3000}"
+PID_FILE="./server.pid"
 
 # Function to print status
 print_status() {
@@ -65,10 +67,11 @@ build_step() {
     
     # Clean install (CRITICAL - ensure clean state)
     print_status "Performing critical dependency installation..."
-    if npm ci --prefer-offline --no-audit 2>/dev/null || npm install; then
+    if npm ci --prefer-offline --no-audit 2>/dev/null; then
         print_success "Dependencies installed successfully"
     else
         print_error "CRITICAL: Dependency installation failed!"
+        print_error "npm ci failed. Please ensure package-lock.json is up to date."
         return 1
     fi
     
@@ -148,7 +151,7 @@ test_step() {
     print_status "Starting server for integration tests..."
     npm start &
     SERVER_PID=$!
-    echo $SERVER_PID > /tmp/bct-server.pid
+    echo $SERVER_PID > "$PID_FILE"
     print_status "Server started with PID $SERVER_PID"
     
     # Wait for server to be ready
@@ -156,7 +159,7 @@ test_step() {
     local max_wait=30
     local waited=0
     while [ $waited -lt $max_wait ]; do
-        if curl -s http://localhost:3000/api/health > /dev/null 2>&1; then
+        if curl -s "http://localhost:${SERVER_PORT}/api/health" > /dev/null 2>&1; then
             print_success "Server is ready!"
             break
         fi
@@ -164,8 +167,13 @@ test_step() {
         waited=$((waited + 2))
         if [ $waited -ge $max_wait ]; then
             print_error "Server failed to start within ${max_wait} seconds"
-            kill $SERVER_PID 2>/dev/null || true
-            rm -f /tmp/bct-server.pid
+            if [ -f "$PID_FILE" ]; then
+                local pid=$(cat "$PID_FILE" 2>/dev/null)
+                if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                    kill "$pid" 2>/dev/null || true
+                fi
+                rm -f "$PID_FILE"
+            fi
             return 1
         fi
     done
@@ -182,8 +190,13 @@ test_step() {
     
     # Stop the server
     print_status "Stopping server..."
-    kill $SERVER_PID 2>/dev/null || true
-    rm -f /tmp/bct-server.pid
+    if [ -f "$PID_FILE" ]; then
+        local pid=$(cat "$PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+        fi
+        rm -f "$PID_FILE"
+    fi
     print_success "Server stopped"
     
     if [ $test_result -ne 0 ]; then
@@ -231,10 +244,13 @@ main() {
     echo ""
     
     # Cleanup any leftover server processes
-    if [ -f /tmp/bct-server.pid ]; then
+    if [ -f "$PID_FILE" ]; then
         print_status "Cleaning up previous server instance..."
-        kill $(cat /tmp/bct-server.pid) 2>/dev/null || true
-        rm -f /tmp/bct-server.pid
+        local pid=$(cat "$PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+        fi
+        rm -f "$PID_FILE"
     fi
     
     while [ $CURRENT_ATTEMPT -le $MAX_RETRIES ]; do
@@ -251,9 +267,12 @@ main() {
         else
             # Failure - check if we should retry
             # Clean up any server that might be running
-            if [ -f /tmp/bct-server.pid ]; then
-                kill $(cat /tmp/bct-server.pid) 2>/dev/null || true
-                rm -f /tmp/bct-server.pid
+            if [ -f "$PID_FILE" ]; then
+                local pid=$(cat "$PID_FILE" 2>/dev/null)
+                if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                    kill "$pid" 2>/dev/null || true
+                fi
+                rm -f "$PID_FILE"
             fi
             
             if [ $CURRENT_ATTEMPT -lt $MAX_RETRIES ]; then
