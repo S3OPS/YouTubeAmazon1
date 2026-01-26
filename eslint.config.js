@@ -19,23 +19,23 @@ module.exports = [
                 fetch: 'readonly',
                 document: 'readonly',
                 window: 'readonly',
-                DOMContentLoaded: 'readonly'
-            }
+                DOMContentLoaded: 'readonly',
+            },
         },
         rules: {
             'no-console': ['warn', { allow: ['error', 'warn'] }],
             'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
             'prefer-const': 'error',
             'no-var': 'error',
-            'eqeqeq': ['error', 'always'],
-            'curly': ['error', 'all'],
+            eqeqeq: ['error', 'always'],
+            curly: ['error', 'all'],
             'no-eval': 'error',
             'no-implied-eval': 'error',
             'no-new-func': 'error',
-            'prefer-arrow-callback': 'warn'
-        }
+            'prefer-arrow-callback': 'warn',
+        },
     },
     {
-        ignores: ['node_modules/**', 'dist/**', 'build/**', '.husky/**']
-    }
+        ignores: ['node_modules/**', 'dist/**', 'build/**', '.husky/**'],
+    },
 ];

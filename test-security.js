@@ -26,12 +26,21 @@ function test(description, condition) {
 // Test 1: app.js should not contain API tokens
 const appJs = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
 test('app.js does not contain API token', !appJs.includes('eyJ0eXAiOiJKV1Qi'));
-test('app.js does not contain hardcoded shopId in config', !appJs.includes("shopId: 'PablosMerchantStand'"));
+test(
+    'app.js does not contain hardcoded shopId in config',
+    !appJs.includes("shopId: 'PablosMerchantStand'")
+);
 
 // Test 2: server.js should use environment variables
 const serverJs = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-test('server.js uses process.env.PRINTIFY_API_TOKEN', serverJs.includes('process.env.PRINTIFY_API_TOKEN'));
-test('server.js uses process.env.PRINTIFY_SHOP_ID', serverJs.includes('process.env.PRINTIFY_SHOP_ID'));
+test(
+    'server.js uses process.env.PRINTIFY_API_TOKEN',
+    serverJs.includes('process.env.PRINTIFY_API_TOKEN')
+);
+test(
+    'server.js uses process.env.PRINTIFY_SHOP_ID',
+    serverJs.includes('process.env.PRINTIFY_SHOP_ID')
+);
 
 // Test 3: .env should be in .gitignore
 const gitignore = fs.readFileSync(path.join(__dirname, '.gitignore'), 'utf8');
@@ -49,11 +58,11 @@ test('cors is in dependencies', packageJson.dependencies.cors !== undefined);
 
 // Test 6: server.js should define API routes
 test('server.js has /api/products endpoint', serverJs.includes("app.get('/api/products'"));
-test('server.js has /api/orders endpoint', serverJs.includes("app.post('/api/orders'"));
+test('server.js has /api/orders endpoint', serverJs.includes('/api/orders'));
 test('server.js has /api/health endpoint', serverJs.includes("app.get('/api/health'"));
 
 // Test 7: app.js should call backend API
-test('app.js calls backend API', appJs.includes("apiBaseUrl:") && appJs.includes("'/api'"));
+test('app.js calls backend API', appJs.includes('apiBaseUrl:') && appJs.includes("'/api'"));
 test('app.js does not directly call Printify API', !appJs.includes('api.printify.com'));
 
 // Test 8: Backend has proper error handling

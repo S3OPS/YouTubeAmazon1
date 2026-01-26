@@ -1,51 +1,51 @@
 version: 2
 updates:
-  # Enable version updates for npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "S3OPS"
-    labels:
-      - "dependencies"
-      - "automated"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    # Ignore major version updates for stable dependencies
-    ignore:
-      - dependency-name: "express"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "node"
-        update-types: ["version-update:semver-major"]
-    # Group minor and patch updates
-    groups:
-      production-dependencies:
-        dependency-type: "production"
-        update-types:
-          - "minor"
-          - "patch"
-      development-dependencies:
-        dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
-          
-  # Enable version updates for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
-      - "automated"
-    commit-message:
-      prefix: "ci"
+    # Enable version updates for npm
+    - package-ecosystem: 'npm'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+          day: 'monday'
+          time: '09:00'
+      open-pull-requests-limit: 10
+      reviewers:
+          - 'S3OPS'
+      labels:
+          - 'dependencies'
+          - 'automated'
+      commit-message:
+          prefix: 'chore'
+          include: 'scope'
+      # Ignore major version updates for stable dependencies
+      ignore:
+          - dependency-name: 'express'
+            update-types: ['version-update:semver-major']
+          - dependency-name: 'node'
+            update-types: ['version-update:semver-major']
+      # Group minor and patch updates
+      groups:
+          production-dependencies:
+              dependency-type: 'production'
+              update-types:
+                  - 'minor'
+                  - 'patch'
+          development-dependencies:
+              dependency-type: 'development'
+              update-types:
+                  - 'minor'
+                  - 'patch'
+
+    # Enable version updates for GitHub Actions
+    - package-ecosystem: 'github-actions'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+          day: 'monday'
+          time: '09:00'
+      open-pull-requests-limit: 5
+      labels:
+          - 'dependencies'
+          - 'github-actions'
+          - 'automated'
+      commit-message:
+          prefix: 'ci'

@@ -2,18 +2,20 @@
 
 // Configuration - Backend API endpoint
 const config = {
-    apiBaseUrl: window.API_BASE_URL || '/api'  // Backend API endpoint (proxies to Printify)
+    apiBaseUrl: window.API_BASE_URL || '/api', // Backend API endpoint (proxies to Printify)
 };
 
 // Helper function to safely escape HTML to prevent XSS attacks
 function escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return '';
+    if (typeof unsafe !== 'string') {
+        return '';
+    }
     return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // Helper function to convert dollars to cents for precise calculations
@@ -48,7 +50,7 @@ const state = {
     filteredProducts: [],
     cart: [],
     currentCategory: 'all',
-    searchTerm: ''
+    searchTerm: '',
 };
 
 // Initialize the application
@@ -56,10 +58,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Load products (uses API or mock data)
         await loadProducts();
-        
+
         // Set up event listeners
         setupEventListeners();
-        
+
         // Render products
         renderProducts();
     } catch (error) {
@@ -77,44 +79,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load products from Printify API
 async function loadProducts() {
     const productsContainer = document.getElementById('products-container');
-    
+
     try {
         // Make API call to backend which proxies to Printify
         const response = await fetch(`${config.apiBaseUrl}/products`);
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch products from backend');
         }
-        
+
         const data = await response.json();
-        
+
         // Check if backend is in demo mode
         if (data.demo || !data.data || data.data.length === 0) {
             state.products = getMockProducts();
             state.filteredProducts = state.products;
             return;
         }
-        
+
         state.products = formatPrintifyProducts(data);
         state.filteredProducts = state.products;
-        
-    } catch (error) {
+    } catch {
         const errorDiv = document.createElement('div');
         errorDiv.className = 'loading';
-        
+
         const errorText = document.createElement('p');
         errorText.textContent = 'Error loading products. Using demo data.';
         errorDiv.appendChild(errorText);
-        
+
         const configText = document.createElement('p');
         configText.style.fontSize = '0.9rem';
         configText.style.color = '#999';
         configText.textContent = 'Configure your Printify API credentials in .env file';
         errorDiv.appendChild(configText);
-        
+
         productsContainer.innerHTML = '';
         productsContainer.appendChild(errorDiv);
-        
+
         state.products = getMockProducts();
         state.filteredProducts = state.products;
     }
@@ -122,20 +123,17 @@ async function loadProducts() {
 
 // Format Printify API products
 function formatPrintifyProducts(printifyData) {
-    return printifyData.data.map(product => ({
+    return printifyData.data.map((product) => ({
         id: product.id,
         title: product.title,
         description: product.description || 'High-quality print-on-demand product',
-        price: product.variants && product.variants.length > 0 
-            ? (product.variants[0].price / 100).toFixed(2) 
-            : '29.99',
-        image: product.images && product.images.length > 0 
-            ? product.images[0].src 
-            : null,
-        category: product.tags && product.tags.length > 0 
-            ? product.tags[0] 
-            : 'apparel',
-        variants: product.variants || []
+        price:
+            product.variants && product.variants.length > 0
+                ? (product.variants[0].price / 100).toFixed(2)
+                : '29.99',
+        image: product.images && product.images.length > 0 ? product.images[0].src : null,
+        category: product.tags && product.tags.length > 0 ? product.tags[0] : 'apparel',
+        variants: product.variants || [],
     }));
 }
 
@@ -149,7 +147,7 @@ function getMockProducts() {
             price: '24.99',
             image: null,
             category: 'apparel',
-            emoji: '👕'
+            emoji: '👕',
         },
         {
             id: '2',
@@ -158,7 +156,7 @@ function getMockProducts() {
             price: '44.99',
             image: null,
             category: 'apparel',
-            emoji: '🧥'
+            emoji: '🧥',
         },
         {
             id: '3',
@@ -167,7 +165,7 @@ function getMockProducts() {
             price: '14.99',
             image: null,
             category: 'home',
-            emoji: '☕'
+            emoji: '☕',
         },
         {
             id: '4',
@@ -176,7 +174,7 @@ function getMockProducts() {
             price: '39.99',
             image: null,
             category: 'home',
-            emoji: '🖼️'
+            emoji: '🖼️',
         },
         {
             id: '5',
@@ -185,7 +183,7 @@ function getMockProducts() {
             price: '19.99',
             image: null,
             category: 'accessories',
-            emoji: '👜'
+            emoji: '👜',
         },
         {
             id: '6',
@@ -194,7 +192,7 @@ function getMockProducts() {
             price: '16.99',
             image: null,
             category: 'accessories',
-            emoji: '📱'
+            emoji: '📱',
         },
         {
             id: '7',
@@ -203,7 +201,7 @@ function getMockProducts() {
             price: '34.99',
             image: null,
             category: 'apparel',
-            emoji: '👔'
+            emoji: '👔',
         },
         {
             id: '8',
@@ -212,15 +210,15 @@ function getMockProducts() {
             price: '12.99',
             image: null,
             category: 'home',
-            emoji: '🎨'
-        }
+            emoji: '🎨',
+        },
     ];
 }
 
 // Render products to the grid
 function renderProducts() {
     const productsContainer = document.getElementById('products-container');
-    
+
     if (state.filteredProducts.length === 0) {
         productsContainer.innerHTML = '';
         const noProductsDiv = document.createElement('div');
@@ -229,20 +227,20 @@ function renderProducts() {
         productsContainer.appendChild(noProductsDiv);
         return;
     }
-    
+
     // Clear container
     productsContainer.innerHTML = '';
-    
+
     // Create product cards using safe DOM methods
-    state.filteredProducts.forEach(product => {
+    state.filteredProducts.forEach((product) => {
         const productCard = document.createElement('div');
         productCard.className = 'product-card';
         productCard.setAttribute('data-id', product.id);
-        
+
         // Product image
         const productImage = document.createElement('div');
         productImage.className = 'product-image';
-        
+
         if (product.image) {
             const img = document.createElement('img');
             img.src = product.image;
@@ -256,23 +254,23 @@ function renderProducts() {
             emoji.textContent = product.emoji || '🎁';
             productImage.appendChild(emoji);
         }
-        
+
         // Product info
         const productInfo = document.createElement('div');
         productInfo.className = 'product-info';
-        
+
         const productTitle = document.createElement('div');
         productTitle.className = 'product-title';
         productTitle.textContent = product.title;
-        
+
         const productDescription = document.createElement('div');
         productDescription.className = 'product-description';
         productDescription.textContent = product.description;
-        
+
         const productPrice = document.createElement('div');
         productPrice.className = 'product-price';
         productPrice.textContent = `$${product.price}`;
-        
+
         const addButton = document.createElement('button');
         addButton.className = 'btn-primary add-to-cart';
         addButton.setAttribute('data-id', product.id);
@@ -281,25 +279,27 @@ function renderProducts() {
             e.stopPropagation();
             addToCart(product.id);
         });
-        
+
         productInfo.appendChild(productTitle);
         productInfo.appendChild(productDescription);
         productInfo.appendChild(productPrice);
         productInfo.appendChild(addButton);
-        
+
         productCard.appendChild(productImage);
         productCard.appendChild(productInfo);
-        
+
         productsContainer.appendChild(productCard);
     });
 }
 
 // Filter products
 function filterProducts() {
-    state.filteredProducts = state.products.filter(product => {
-        const matchesCategory = state.currentCategory === 'all' || product.category === state.currentCategory;
-        const matchesSearch = product.title.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-                            product.description.toLowerCase().includes(state.searchTerm.toLowerCase());
+    state.filteredProducts = state.products.filter((product) => {
+        const matchesCategory =
+            state.currentCategory === 'all' || product.category === state.currentCategory;
+        const matchesSearch =
+            product.title.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+            product.description.toLowerCase().includes(state.searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
     });
     renderProducts();
@@ -307,23 +307,25 @@ function filterProducts() {
 
 // Add product to cart
 function addToCart(productId) {
-    const product = state.products.find(p => p.id === productId);
-    if (!product) return;
-    
-    const existingItem = state.cart.find(item => item.id === productId);
+    const product = state.products.find((p) => p.id === productId);
+    if (!product) {
+        return;
+    }
+
+    const existingItem = state.cart.find((item) => item.id === productId);
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         state.cart.push({ ...product, quantity: 1 });
     }
-    
+
     updateCartCount();
     showNotification('Product added to cart!');
 }
 
 // Remove from cart
 function removeFromCart(productId) {
-    state.cart = state.cart.filter(item => item.id !== productId);
+    state.cart = state.cart.filter((item) => item.id !== productId);
     updateCartCount();
     renderCart();
 }
@@ -339,7 +341,7 @@ function updateCartCount() {
 function renderCart() {
     const cartItems = document.getElementById('cart-items');
     const cartTotal = document.getElementById('cart-total');
-    
+
     if (state.cart.length === 0) {
         cartItems.innerHTML = '';
         const emptyMessage = document.createElement('p');
@@ -351,29 +353,29 @@ function renderCart() {
         cartTotal.textContent = '0.00';
         return;
     }
-    
+
     // Clear cart items
     cartItems.innerHTML = '';
-    
+
     // Calculate total in cents for precision
     let totalCents = 0;
-    
+
     // Create cart items using safe DOM methods
-    state.cart.forEach(item => {
+    state.cart.forEach((item) => {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
-        
+
         const cartItemInfo = document.createElement('div');
         cartItemInfo.className = 'cart-item-info';
-        
+
         const cartItemTitle = document.createElement('div');
         cartItemTitle.className = 'cart-item-title';
         cartItemTitle.textContent = item.title;
-        
+
         const cartItemPrice = document.createElement('div');
         cartItemPrice.className = 'cart-item-price';
         cartItemPrice.textContent = `$${item.price} × ${item.quantity}`;
-        
+
         const removeButton = document.createElement('button');
         removeButton.className = 'cart-item-remove';
         removeButton.setAttribute('data-id', item.id);
@@ -381,19 +383,19 @@ function renderCart() {
         removeButton.addEventListener('click', () => {
             removeFromCart(item.id);
         });
-        
+
         cartItemInfo.appendChild(cartItemTitle);
         cartItemInfo.appendChild(cartItemPrice);
         cartItem.appendChild(cartItemInfo);
         cartItem.appendChild(removeButton);
-        
+
         cartItems.appendChild(cartItem);
-        
+
         // Add to total (using cents for precision)
         const itemCents = dollarsToCents(item.price);
         totalCents += itemCents * item.quantity;
     });
-    
+
     cartTotal.textContent = centsToDollars(totalCents);
 }
 
@@ -413,9 +415,9 @@ function showNotification(message) {
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => notification.remove(), 300);
@@ -429,13 +431,13 @@ function setupEventListeners() {
         state.currentCategory = e.target.value;
         filterProducts();
     });
-    
+
     // Search
     document.getElementById('search-input').addEventListener('input', (e) => {
         state.searchTerm = e.target.value;
         filterProducts();
     });
-    
+
     // Cart icon click
     document.querySelector('.cart-icon').addEventListener('click', () => {
         const cartModal = document.getElementById('cart-modal');
@@ -443,15 +445,15 @@ function setupEventListeners() {
         cartModal.classList.add('active');
         renderCart();
     });
-    
+
     // Modal close buttons
-    document.querySelectorAll('.close').forEach(closeBtn => {
-        closeBtn.addEventListener('click', function() {
+    document.querySelectorAll('.close').forEach((closeBtn) => {
+        closeBtn.addEventListener('click', function () {
             this.closest('.modal').classList.remove('active');
             this.closest('.modal').classList.add('hidden');
         });
     });
-    
+
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
@@ -459,7 +461,7 @@ function setupEventListeners() {
             e.target.classList.add('hidden');
         }
     });
-    
+
     // Checkout button
     document.getElementById('checkout-btn').addEventListener('click', () => {
         if (state.cart.length === 0) {
@@ -471,7 +473,7 @@ function setupEventListeners() {
         document.getElementById('checkout-modal').classList.remove('hidden');
         document.getElementById('checkout-modal').classList.add('active');
     });
-    
+
     // Checkout form submission
     document.getElementById('checkout-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -488,10 +490,10 @@ async function processOrder() {
     const city = document.getElementById('customer-city').value;
     const zip = document.getElementById('customer-zip').value;
     const country = document.getElementById('customer-country').value;
-    
+
     // Validate all fields
     const errors = [];
-    
+
     if (!isValidRequired(name)) {
         errors.push('Name is required');
     }
@@ -510,20 +512,20 @@ async function processOrder() {
     if (!isValidRequired(country)) {
         errors.push('Country is required');
     }
-    
+
     // Show validation errors
     if (errors.length > 0) {
         showNotification('Please fix: ' + errors.join(', '));
         return;
     }
-    
+
     // Calculate total in cents for precision
     let totalCents = 0;
-    state.cart.forEach(item => {
+    state.cart.forEach((item) => {
         const itemCents = dollarsToCents(item.price);
         totalCents += itemCents * item.quantity;
     });
-    
+
     const formData = {
         name: name,
         email: email,
@@ -532,20 +534,20 @@ async function processOrder() {
         zip: zip,
         country: country,
         items: state.cart,
-        total: centsToDollars(totalCents)
+        total: centsToDollars(totalCents),
     };
-    
+
     try {
         // Create order via backend API
         const nameParts = formData.name.split(' ');
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'Customer';
-        
+
         const orderData = {
             external_id: `ORDER-${Date.now()}`,
-            line_items: state.cart.map(item => ({
+            line_items: state.cart.map((item) => ({
                 product_id: item.id,
-                quantity: item.quantity
+                quantity: item.quantity,
             })),
             shipping_method: 1,
             send_shipping_notification: false,
@@ -556,34 +558,33 @@ async function processOrder() {
                 address1: formData.address,
                 city: formData.city,
                 zip: formData.zip,
-                country: formData.country
-            }
+                country: formData.country,
+            },
         };
-        
+
         // Send order to backend API
         const response = await fetch(`${config.apiBaseUrl}/orders`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(orderData)
+            body: JSON.stringify(orderData),
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Failed to create order');
         }
-        
+
         // Show success message
         showNotification('Order placed successfully! Thank you for your purchase.');
-        
+
         // Clear cart and close modal
         state.cart = [];
         updateCartCount();
         document.getElementById('checkout-modal').classList.remove('active');
         document.getElementById('checkout-modal').classList.add('hidden');
         document.getElementById('checkout-form').reset();
-        
     } catch (error) {
         showNotification('Error processing order: ' + error.message);
     }

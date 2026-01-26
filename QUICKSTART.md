@@ -1,105 +1,75 @@
 # Quick Start Guide
 
-## 🎉 Secure Backend Architecture Implemented!
+Get your Printify Dropshipping Store running in minutes with our **100% automated setup**.
 
-### Current Status
-✅ **Backend API**: Node.js/Express server  
-✅ **Secure Credentials**: Environment variables in `.env`  
-✅ **API Proxy**: All Printify calls go through backend  
-✅ **No Exposed Tokens**: Client-side code is secure  
+## 🚀 Super Quick Start (Recommended)
 
-### Quick Setup (3 Steps)
+### One-Command Setup
 
-**Option A: Automated Setup (Recommended)**
-
-1. **Run the setup wizard:**
-   ```bash
-   npm run setup
-   ```
-   Follow the on-screen instructions to configure your environment.
-
-2. **Install dependencies** (`npm install`)
-3. **Start server** (`npm start`)
-
-**Option B: Manual Setup**
-
-1. **Configure credentials** (copy `.env.example` to `.env` and add your Printify API token)
-2. **Install dependencies** (`npm install`)
-3. **Start server** (`npm start`)
-
-### Access Your Store
-
-**Local Development:**
-```
-http://localhost:3000
+```bash
+./quick-start.sh
 ```
 
-### Server Commands
+That's it! The automated script will:
+- ✅ Check system requirements (Node.js, npm)
+- ✅ Install all dependencies  
+- ✅ Run the setup wizard
+- ✅ Configure your environment
+- ✅ Run all tests
+- ✅ Validate code quality
+- ✅ Provide next steps
 
-**Start Server:**
+**Time to complete:** ~2-3 minutes
+
+## 📋 Prerequisites
+
+✅ **Node.js v14+** - [Download](https://nodejs.org/)  
+✅ **npm v6+** - Comes with Node.js  
+✅ **Printify Account** - [Sign up](https://printify.com)  
+✅ **API Token** - Get from [Printify Settings](https://printify.com/app/account/api)
+
+## 🎯 Manual Setup
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Configure
+```bash
+npm run setup
+```
+
+### 3. Start Server
 ```bash
 npm start
 ```
 
-**Stop Server:**
+### 4. Open Browser
+Visit: `http://localhost:3000`
+
+## 🐳 Docker Quick Start
+
 ```bash
-# Press Ctrl+C in the terminal
-# Or find and kill the process:
-ps aux | grep "node server.js"
-kill <PID>
+cp .env.example .env
+# Edit .env with your credentials
+npm run docker:run
 ```
 
-### Quick Test Checklist
+## ✅ Verify Installation
 
-1. ✅ Start backend server (`npm start`)
-2. ✅ Open http://localhost:3000
-3. ✅ Browse products
-4. ✅ Add items to cart
-5. ✅ View cart (click 🛒)
-6. ✅ Try checkout form
+```bash
+npm test
+```
 
-### Files Overview
+Expected: All security tests pass ✅
 
-- `index.html` - Main store page
-- `app.js` - Frontend application logic (no credentials!)
-- `server.js` - Backend API server (handles Printify API securely)
-- `styles.css` - Styling
-- `package.json` - Node.js dependencies
-- `.env` - Environment variables (not committed to git)
-- `.env.example` - Template for environment variables
-- `SETUP.md` - Detailed setup and hosting guide
-- `README.md` - Project documentation
+## 📚 Documentation
 
-### For Production Hosting
-
-See `SETUP.md` for detailed instructions on:
-- GitHub Pages
-- Netlify (recommended)
-- Vercel
-- Custom web hosting
-
-### Important Security Notes
-
-✅ **SECURE Architecture Implemented**
-
-**Current Setup**: Backend API with environment variables
-- ✅ Perfect for: Production, development, and testing
-- ✅ API credentials are server-side only
-- ✅ No tokens exposed in browser
-- ✅ Proper security best practices
-
-🔒 **Security Features**:
-- Environment variables in `.env` file
-- Backend proxies all Printify API calls
-- CORS properly configured
-- `.env` excluded from version control
-
-### Need Help?
-
-1. Check `SETUP.md` for detailed instructions
-2. See `README.md` for features and customization
-3. Visit [Printify API Docs](https://developers.printify.com/)
+- [AUTOMATION.md](AUTOMATION.md) - Full automation guide
+- [SETUP.md](SETUP.md) - Detailed deployment  
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Development guide
 
 ---
 
-**That's it! Your store is live and ready to use! 🚀**
+**Automation level:** 100% ✅
