@@ -22,15 +22,21 @@ An automated, production-ready dropshipping page powered by Printify API. This a
 - ✅ **Environment-based Security**: Strict mode in production
 - ✅ **Financial Precision**: Cents-based calculations for accurate money handling
 - ✅ **Secure Credentials**: Server-side API tokens, never exposed to client
+- ✅ **CodeQL Scanning**: Automated security analysis in CI/CD
 
 ### DevOps & Automation 🤖
+- ✅ **100% Automated CI/CD**: Multi-job pipeline (lint, security, tests, build)
 - ✅ **Docker Support**: Multi-stage Dockerfile with non-root user
-- ✅ **Docker Compose**: One-command deployment
-- ✅ **CI/CD Pipeline**: Multi-job GitHub Actions (lint, security, tests, build)
+- ✅ **Docker Compose**: One-command deployment for dev and production
+- ✅ **Automated Deployment**: GitHub Actions workflow for staging/production
+- ✅ **Automated Releases**: Version management with changelog generation
+- ✅ **CodeQL Security Scanning**: Weekly automated security analysis
+- ✅ **Performance Testing**: Automated benchmarking on PRs and weekly
+- ✅ **Health Monitoring**: Continuous monitoring with automatic alerts
 - ✅ **Automated Dependency Updates**: Dependabot configuration
-- ✅ **Code Quality**: ESLint + Prettier with pre-commit hooks
-- ✅ **Security Auditing**: npm audit in CI pipeline
-- ✅ **Health Checks**: Built-in health endpoint and Docker health checks
+- ✅ **Pre-commit Hooks**: Husky + lint-staged for code quality
+- ✅ **Code Quality**: ESLint + Prettier enforcement
+- ✅ **Quick Start Script**: One-command setup and deployment
 
 ### Monitoring & Logging 📊
 - ✅ **Structured Logging**: Winston logger with JSON formatting
@@ -38,13 +44,37 @@ An automated, production-ready dropshipping page powered by Printify API. This a
 - ✅ **Performance Monitoring**: Request duration logging
 - ✅ **Error Tracking**: Detailed error logs with context
 - ✅ **Environment-aware**: Different log levels for dev/prod
+- ✅ **Health Checks**: Built-in health endpoint and Docker health checks
+- ✅ **Automated Monitoring**: Continuous health checking with alerts
 
 ### Performance ⚡
 - ✅ **HTTP Caching**: Cache-Control headers on static files and API
 - ✅ **ETags**: Efficient cache validation
 - ✅ **Pagination**: Limit API responses for better performance
 - ✅ **Static Asset Caching**: 1-day cache in production
+- ✅ **Multi-platform Docker**: Optimized builds for amd64 and arm64
 
+
+## 🚀 Quick Start
+
+### Automated Setup (Fastest)
+
+Run the automated quick-start script:
+
+```bash
+./quick-start.sh
+```
+
+This will automatically:
+- Check system requirements
+- Install dependencies
+- Run the setup wizard
+- Validate configuration
+- Run tests and code quality checks
+
+### Manual Setup
+
+See [SETUP.md](SETUP.md) for detailed manual setup instructions.
 
 ## Getting Started
 
@@ -311,6 +341,46 @@ Potential features to add:
 - [ ] Reviews and ratings
 - [ ] Multi-language support
 - [ ] Analytics dashboard
+
+## 📚 Documentation
+
+- **[AUTOMATION.md](AUTOMATION.md)** - Complete automation infrastructure guide
+- **[SETUP.md](SETUP.md)** - Detailed setup and deployment instructions
+- **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
+- **[SCAN_SUMMARY.md](SCAN_SUMMARY.md)** - Deep scan results and fixes
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+
+## 🛠️ Available Commands
+
+```bash
+# Development
+npm start              # Start the server
+npm run dev            # Start in development mode
+npm run setup          # Run setup wizard
+npm run quick-start    # Automated setup and validation
+
+# Testing
+npm test               # Run all tests
+npm run test:security  # Run security tests
+npm run test:integration # Run integration tests
+
+# Code Quality
+npm run lint           # Check code quality
+npm run lint:fix       # Auto-fix linting issues
+npm run format         # Format code with Prettier
+npm run format:check   # Check code formatting
+npm run ci             # Run all CI checks locally
+
+# Docker
+npm run docker:build   # Build Docker image
+npm run docker:run     # Run with Docker Compose
+npm run docker:stop    # Stop Docker containers
+npm run docker:logs    # View Docker logs
+npm run docker:prod    # Run in production mode
+
+# Monitoring
+npm run monitor        # Start health monitoring
+```
 
 ## Contributing
 
