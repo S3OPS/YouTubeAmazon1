@@ -1,0 +1,132 @@
+name: Health Monitoring
+
+on:
+  schedule:
+    # Check health every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health-check:
+    name: Monitor Application Health
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create .env file
+      run: cp .env.example .env
+    
+    - name: Start server
+      run: |
+        npm start &
+        echo $! > server.pid
+        sleep 5
+    
+    - name: Health check - API endpoint
+      id: health_api
+      run: |
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "✅ Health endpoint: OK"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Health endpoint: Failed (HTTP $RESPONSE)"
+          echo "status=failed" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+    
+    - name: Health check - Products API
+      id: health_products
+      run: |
+        RESPONSE=$(curl -s http://localhost:3000/api/products)
+        if echo "$RESPONSE" | jq empty 2>/dev/null; then
+          echo "✅ Products API: Valid JSON response"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Products API: Invalid response"
+          echo "status=failed" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+    
+    - name: Health check - Static files
+      id: health_static
+      run: |
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/)
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "✅ Static files: OK"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Static files: Failed (HTTP $RESPONSE)"
+          echo "status=failed" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+    
+    - name: Memory check
+      run: |
+        sleep 10
+        PID=$(cat server.pid)
+        MEM=$(ps -o rss= -p $PID)
+        MEM_MB=$((MEM / 1024))
+        echo "📊 Memory usage: ${MEM_MB}MB"
+        if [ $MEM_MB -gt 500 ]; then
+          echo "⚠️  High memory usage detected: ${MEM_MB}MB"
+        else
+          echo "✅ Memory usage is within normal range"
+        fi
+    
+    - name: Response time check
+      run: |
+        START=$(date +%s%N)
+        curl -s http://localhost:3000/api/health > /dev/null
+        END=$(date +%s%N)
+        DURATION=$((($END - $START) / 1000000))
+        echo "⏱️  Response time: ${DURATION}ms"
+        if [ $DURATION -gt 1000 ]; then
+          echo "⚠️  Slow response time: ${DURATION}ms"
+        else
+          echo "✅ Response time is good"
+        fi
+    
+    - name: Stop server
+      if: always()
+      run: |
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+          rm server.pid
+        fi
+    
+    - name: Create issue on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Health Check Failed',
+            body: `## Health Check Failure
+            
+            The automated health monitoring detected issues with the application.
+            
+            **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Time:** ${new Date().toISOString()}
+            
+            Please investigate and resolve the issues.`,
+            labels: ['automated', 'health-check', 'urgent']
+          });
+          console.log('Created issue:', issue.data.number);

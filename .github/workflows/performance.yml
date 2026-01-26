@@ -1,0 +1,102 @@
+name: Performance Testing
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run performance tests weekly on Sunday at 2 AM
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  performance-test:
+    name: Run Performance Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create .env file
+      run: cp .env.example .env
+    
+    - name: Start server
+      run: |
+        npm start &
+        echo $! > server.pid
+        sleep 5
+    
+    - name: Wait for server
+      run: |
+        for i in {1..30}; do
+          if curl -s http://localhost:3000/api/health > /dev/null; then
+            echo "✅ Server is ready!"
+            exit 0
+          fi
+          echo "⏳ Waiting for server... ($i/30)"
+          sleep 2
+        done
+        echo "❌ Server failed to start"
+        exit 1
+    
+    - name: Install Apache Bench
+      run: sudo apt-get update && sudo apt-get install -y apache2-utils
+    
+    - name: Run performance benchmarks
+      run: |
+        echo "🚀 Running performance benchmarks..."
+        echo ""
+        echo "## Health Endpoint Performance"
+        ab -n 1000 -c 10 -g health.tsv http://localhost:3000/api/health
+        
+        echo ""
+        echo "## Products API Performance"
+        ab -n 500 -c 10 -g products.tsv http://localhost:3000/api/products
+        
+        echo ""
+        echo "## Static Files Performance"
+        ab -n 1000 -c 10 -g static.tsv http://localhost:3000/
+    
+    - name: Analyze results
+      run: |
+        echo "📊 Performance Test Results"
+        echo "=========================="
+        echo ""
+        echo "Health endpoint: 1000 requests with 10 concurrent connections"
+        grep "Requests per second" health.tsv || echo "Check ab output above"
+        echo ""
+        echo "Products API: 500 requests with 10 concurrent connections"
+        grep "Requests per second" products.tsv || echo "Check ab output above"
+        echo ""
+        echo "Static files: 1000 requests with 10 concurrent connections"
+        grep "Requests per second" static.tsv || echo "Check ab output above"
+    
+    - name: Stop server
+      if: always()
+      run: |
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+          rm server.pid
+        fi
+    
+    - name: Upload performance results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results
+        path: |
+          *.tsv
+        retention-days: 30
