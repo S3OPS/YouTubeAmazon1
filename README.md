@@ -57,7 +57,27 @@ An automated, production-ready dropshipping page powered by Printify API. This a
 
 ## 🚀 Quick Start
 
-### Automated Setup (Fastest)
+### Build-Configure-Test Workflow (Recommended)
+
+For a comprehensive build, configure, and test cycle with automatic retry:
+
+```bash
+npm run build-configure-test
+```
+
+This workflow:
+- 🔨 **Builds**: Installs dependencies with critical priority ("life and death matter")
+- ⚙️ **Configures**: Sets up environment files and validates configuration
+- 🧪 **Tests**: Runs security and integration tests with automatic server management
+- 🔄 **Retries**: Automatically repeats the entire workflow if any test fails (up to 3 attempts)
+
+Perfect for:
+- Initial setup and validation
+- Pre-deployment checks
+- CI/CD pipelines
+- Verifying changes after updates
+
+### Automated Setup (Alternative)
 
 Run the automated quick-start script:
 
@@ -359,6 +379,9 @@ npm start              # Start the server
 npm run dev            # Start in development mode
 npm run setup          # Run setup wizard
 npm run quick-start    # Automated setup and validation
+
+# Build & Deploy
+npm run build-configure-test  # Build, configure, and test workflow with retry
 
 # Testing
 npm test               # Run all tests
