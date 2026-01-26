@@ -1,0 +1,218 @@
+name: Automated Backup
+
+on:
+    schedule:
+        # Run backups daily at 2 AM UTC
+        - cron: '0 2 * * *'
+    workflow_dispatch:
+        inputs:
+            backup_type:
+                description: 'Type of backup to perform'
+                required: true
+                default: 'full'
+                type: choice
+                options:
+                    - full
+                    - config
+                    - logs
+
+permissions:
+    contents: read
+    issues: write
+
+jobs:
+    backup:
+        name: Perform Automated Backup
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '18'
+
+            - name: Create backup directory
+              run: |
+                  BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
+                  BACKUP_TYPE="${{ github.event.inputs.backup_type || 'full' }}"
+                  BACKUP_DIR="backup_${BACKUP_TYPE}_${BACKUP_DATE}"
+                  
+                  mkdir -p "$BACKUP_DIR"
+                  echo "BACKUP_DIR=$BACKUP_DIR" >> $GITHUB_ENV
+                  echo "BACKUP_DATE=$BACKUP_DATE" >> $GITHUB_ENV
+                  echo "📦 Created backup directory: $BACKUP_DIR"
+
+            - name: Backup configuration files
+              run: |
+                  echo "📋 Backing up configuration files..."
+                  
+                  # Create config backup directory
+                  mkdir -p "$BACKUP_DIR/config"
+                  
+                  # Backup essential configuration files
+                  cp package.json "$BACKUP_DIR/config/"
+                  cp package-lock.json "$BACKUP_DIR/config/" 2>/dev/null || true
+                  cp .env.example "$BACKUP_DIR/config/"
+                  cp eslint.config.js "$BACKUP_DIR/config/"
+                  cp .prettierrc "$BACKUP_DIR/config/"
+                  cp docker-compose.yml "$BACKUP_DIR/config/"
+                  cp docker-compose.prod.yml "$BACKUP_DIR/config/"
+                  cp Dockerfile "$BACKUP_DIR/config/"
+                  
+                  # Backup GitHub workflows
+                  mkdir -p "$BACKUP_DIR/workflows"
+                  cp -r .github/workflows/* "$BACKUP_DIR/workflows/"
+                  
+                  echo "✅ Configuration files backed up"
+
+            - name: Backup documentation
+              if: github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
+              run: |
+                  echo "📚 Backing up documentation..."
+                  
+                  mkdir -p "$BACKUP_DIR/docs"
+                  
+                  cp README.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  cp AUTOMATION.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  cp SETUP.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  cp SECURITY.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  cp CONTRIBUTING.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  cp CHANGELOG.md "$BACKUP_DIR/docs/" 2>/dev/null || true
+                  
+                  echo "✅ Documentation backed up"
+
+            - name: Backup scripts
+              if: github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
+              run: |
+                  echo "📜 Backing up automation scripts..."
+                  
+                  mkdir -p "$BACKUP_DIR/scripts"
+                  
+                  cp quick-start.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
+                  cp monitor.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
+                  cp setup.js "$BACKUP_DIR/scripts/" 2>/dev/null || true
+                  cp automation-dashboard.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
+                  cp validate-automation.js "$BACKUP_DIR/scripts/" 2>/dev/null || true
+                  
+                  echo "✅ Scripts backed up"
+
+            - name: Backup application logs (if exist)
+              if: github.event.inputs.backup_type == 'logs' || github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
+              run: |
+                  echo "📊 Backing up logs..."
+                  
+                  # Note: In production, logs would be fetched from the server
+                  # This is a placeholder for demonstration
+                  mkdir -p "$BACKUP_DIR/logs"
+                  
+                  if [ -d "logs" ]; then
+                    cp -r logs/* "$BACKUP_DIR/logs/" 2>/dev/null || true
+                  fi
+                  
+                  if [ -f "monitoring.log" ]; then
+                    cp monitoring.log "$BACKUP_DIR/logs/" 2>/dev/null || true
+                  fi
+                  
+                  echo "✅ Logs backed up"
+
+            - name: Create backup metadata
+              run: |
+                  echo "📝 Creating backup metadata..."
+                  
+                  cat > "$BACKUP_DIR/backup-info.json" << EOF
+                  {
+                    "backup_date": "$BACKUP_DATE",
+                    "backup_type": "${{ github.event.inputs.backup_type || 'full' }}",
+                    "repository": "${{ github.repository }}",
+                    "branch": "${{ github.ref_name }}",
+                    "commit_sha": "${{ github.sha }}",
+                    "workflow_run": "${{ github.run_id }}",
+                    "created_by": "${{ github.actor }}",
+                    "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+                  }
+                  EOF
+                  
+                  cat "$BACKUP_DIR/backup-info.json"
+                  echo "✅ Metadata created"
+
+            - name: Create backup archive
+              run: |
+                  echo "🗜️  Creating backup archive..."
+                  
+                  tar -czf "${BACKUP_DIR}.tar.gz" "$BACKUP_DIR"
+                  
+                  ARCHIVE_SIZE=$(du -h "${BACKUP_DIR}.tar.gz" | cut -f1)
+                  echo "ARCHIVE_SIZE=$ARCHIVE_SIZE" >> $GITHUB_ENV
+                  
+                  echo "✅ Archive created: ${BACKUP_DIR}.tar.gz ($ARCHIVE_SIZE)"
+
+            - name: Upload backup artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ env.BACKUP_DIR }}
+                  path: ${{ env.BACKUP_DIR }}.tar.gz
+                  retention-days: 30
+                  compression-level: 9
+
+            - name: Backup summary
+              run: |
+                  echo "═══════════════════════════════════════════════════════════════"
+                  echo "📦 BACKUP SUMMARY"
+                  echo "═══════════════════════════════════════════════════════════════"
+                  echo ""
+                  echo "Backup Type:     ${{ github.event.inputs.backup_type || 'full' }}"
+                  echo "Backup Date:     $BACKUP_DATE"
+                  echo "Archive Size:    $ARCHIVE_SIZE"
+                  echo "Archive Name:    ${BACKUP_DIR}.tar.gz"
+                  echo "Retention:       30 days"
+                  echo ""
+                  echo "✅ Backup completed successfully!"
+                  echo "═══════════════════════════════════════════════════════════════"
+
+            - name: Create notification on success
+              if: success()
+              run: |
+                  echo "📢 Backup completed successfully"
+                  
+                  # Optional: Send notification to Slack/Discord
+                  if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+                    curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+                      -H 'Content-Type: application/json' \
+                      -d '{
+                        "text": "✅ Automated backup completed successfully",
+                        "blocks": [
+                          {
+                            "type": "section",
+                            "text": {
+                              "type": "mrkdwn",
+                              "text": "*Backup Completed*\nType: ${{ github.event.inputs.backup_type || 'full' }}\nSize: '"$ARCHIVE_SIZE"'\nRetention: 30 days"
+                            }
+                          }
+                        ]
+                      }' || echo "⚠️  Slack notification failed"
+                  fi
+
+            - name: Create issue on failure
+              if: failure()
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const issue = await github.rest.issues.create({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        title: '🚨 Automated Backup Failed',
+                        body: `## Backup Failure
+                        
+                        The automated backup process failed.
+                        
+                        **Backup Type:** ${{ github.event.inputs.backup_type || 'full' }}
+                        **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                        **Time:** ${new Date().toISOString()}
+                        
+                        Please investigate and resolve the issues.`,
+                        labels: ['automated', 'backup', 'urgent']
+                      });
+                      console.log('Created issue:', issue.data.number);
