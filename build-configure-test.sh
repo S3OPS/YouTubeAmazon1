@@ -136,11 +136,13 @@ configure_step() {
             print_status "Creating .env from .env.example..."
             cp .env.example .env
             print_success ".env file created (please update with your credentials)"
-        elif [ ! -f .env ]; then
-            print_warning "No .env.example found, skipping .env creation"
         fi
     else
         print_success ".env file already exists"
+    fi
+
+    if [ ! -f .env ] && [ ! -f .env.example ]; then
+        print_warning "No .env.example found, skipping .env creation"
     fi
 
     if [ ! -f .env ]; then
@@ -190,8 +192,10 @@ test_step() {
             fi
         done
     fi
+    local server_start_pid=""
+    local server_port_pid=""
     npm start &
-    local server_start_pid=$!
+    server_start_pid=$!
     SERVER_PID=$server_start_pid
     echo $SERVER_PID > "$PID_FILE"
     print_status "Server started with PID $SERVER_PID"
@@ -219,11 +223,13 @@ test_step() {
     done
 
     if command -v lsof &> /dev/null; then
-        local port_pid
-        port_pid=$(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null | head -n1)
-        if [ -n "$port_pid" ] && [ "$port_pid" != "$SERVER_PID" ]; then
-            SERVER_PID=$port_pid
-            echo $SERVER_PID > "$PID_FILE"
+        server_port_pid=$(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null | head -n1)
+        if [ -n "$server_port_pid" ] && [ "$server_port_pid" != "$SERVER_PID" ]; then
+            if ps -p "$server_port_pid" -o args= 2>/dev/null | grep -q 'server.js'; then
+                print_status "Detected server process on port $SERVER_PORT (PID $server_port_pid)"
+            else
+                server_port_pid=""
+            fi
         fi
     fi
     
@@ -244,6 +250,9 @@ test_step() {
         stop_process "$pid"
         if [ -n "$server_start_pid" ] && [ "$server_start_pid" != "$pid" ]; then
             stop_process "$server_start_pid"
+        fi
+        if [ -n "$server_port_pid" ] && [ "$server_port_pid" != "$pid" ]; then
+            stop_process "$server_port_pid"
         fi
         rm -f "$PID_FILE"
     fi
