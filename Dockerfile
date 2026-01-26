@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN HUSKY=0 npm ci --only=production && npm cache clean --force
 
 # Build stage (if needed in future)
 FROM base AS builder
