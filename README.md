@@ -362,7 +362,7 @@ Potential features to add:
 npm start              # Start the server
 npm run dev            # Start in development mode
 npm run setup          # Run setup wizard
-npm run build-configure-test # Automated setup and validation
+npm run build-configure-test # Automated setup, testing, and quality checks
 
 # Build & Deploy
 npm run build-configure-test  # Build, configure, and test workflow with retry

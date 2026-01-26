@@ -19,7 +19,7 @@ That's it! The automated workflow will:
 - ✅ Run lint and formatting checks
 - ✅ Retry the full workflow up to 3 times on failure
 
-**Time to complete:** ~3-5 minutes
+**Time to complete:** ~3-5 minutes (includes lint/format checks)
 
 ## 📋 Prerequisites
 

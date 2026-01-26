@@ -125,24 +125,18 @@ configure_step() {
     # Check if .env exists, create from setup wizard or example if not
     if [ ! -f .env ]; then
         print_warning ".env file not found"
-        if [ -f "setup.js" ]; then
-            print_status "Running setup wizard..."
-            if node setup.js; then
-                print_success "Setup wizard completed"
-            else
-                print_error "Setup wizard failed"
-                return 1
-            fi
-            if [ ! -f .env ] && [ -f .env.example ]; then
-                print_status "Creating .env from .env.example..."
-                cp .env.example .env
-                print_success ".env file created (please update with your credentials)"
-            fi
-        elif [ -f .env.example ]; then
+        print_status "Running setup wizard..."
+        if npm run setup; then
+            print_success "Setup wizard completed"
+        else
+            print_error "Setup wizard failed"
+            return 1
+        fi
+        if [ ! -f .env ] && [ -f .env.example ]; then
             print_status "Creating .env from .env.example..."
             cp .env.example .env
             print_success ".env file created (please update with your credentials)"
-        else
+        elif [ ! -f .env ]; then
             print_warning "No .env.example found, skipping .env creation"
         fi
     else
@@ -196,8 +190,9 @@ test_step() {
             fi
         done
     fi
-    node server.js &
-    SERVER_PID=$!
+    npm start &
+    local server_start_pid=$!
+    SERVER_PID=$server_start_pid
     echo $SERVER_PID > "$PID_FILE"
     print_status "Server started with PID $SERVER_PID"
     
@@ -216,14 +211,21 @@ test_step() {
             print_error "Server failed to start within ${max_wait} seconds"
             if [ -f "$PID_FILE" ]; then
                 local pid=$(cat "$PID_FILE" 2>/dev/null)
-                if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-                    kill "$pid" 2>/dev/null || true
-                fi
+                stop_process "$pid"
                 rm -f "$PID_FILE"
             fi
             return 1
         fi
     done
+
+    if command -v lsof &> /dev/null; then
+        local port_pid
+        port_pid=$(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null | head -n1)
+        if [ -n "$port_pid" ] && [ "$port_pid" != "$SERVER_PID" ]; then
+            SERVER_PID=$port_pid
+            echo $SERVER_PID > "$PID_FILE"
+        fi
+    fi
     
     # Run integration tests
     print_status "Running integration tests..."
@@ -240,6 +242,9 @@ test_step() {
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE" 2>/dev/null)
         stop_process "$pid"
+        if [ -n "$server_start_pid" ] && [ "$server_start_pid" != "$pid" ]; then
+            stop_process "$server_start_pid"
+        fi
         rm -f "$PID_FILE"
     fi
     print_success "Server stopped"
