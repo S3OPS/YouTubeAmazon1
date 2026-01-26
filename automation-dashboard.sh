@@ -70,7 +70,7 @@ echo ""
 
 # Automation Scripts Check
 echo -e "${BLUE}━━━ Automation Scripts ━━━${NC}"
-check_file "quick-start.sh" "Quick Start Script"
+check_file "build-configure-test.sh" "Build-Configure-Test Script"
 check_file "monitor.sh" "Monitoring Script"
 check_file "setup.js" "Setup Wizard"
 check_file "automation-dashboard.sh" "Automation Dashboard"
@@ -152,7 +152,7 @@ if [ -f "package.json" ]; then
         "format"
         "format:check"
         "setup"
-        "quick-start"
+        "build-configure-test"
         "monitor"
         "docker:build"
         "docker:run"

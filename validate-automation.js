@@ -176,14 +176,14 @@ console.log('');
  */
 console.log(`${colors.blue}━━━ Automation Scripts ━━━${colors.reset}`);
 
-checkFile('quick-start.sh', 'Quick start script');
+checkFile('build-configure-test.sh', 'Build-configure-test script');
 checkFile('monitor.sh', 'Monitoring script');
 checkFile('setup.js', 'Setup wizard');
 checkFile('automation-dashboard.sh', 'Automation dashboard');
 checkFile('validate-automation.js', 'Automation validator');
 
 // Check if scripts are executable
-const scripts = ['quick-start.sh', 'monitor.sh', 'automation-dashboard.sh'];
+const scripts = ['build-configure-test.sh', 'monitor.sh', 'automation-dashboard.sh'];
 scripts.forEach((script) => {
     const fullPath = path.join(process.cwd(), script);
     if (fs.existsSync(fullPath)) {
@@ -218,6 +218,7 @@ const requiredScripts = [
     'format',
     'format:check',
     'setup',
+    'build-configure-test',
     'ci',
 ];
 

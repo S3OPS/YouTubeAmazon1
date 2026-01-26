@@ -23,6 +23,7 @@ MAX_RETRIES=3
 CURRENT_ATTEMPT=1
 SERVER_PORT="${PORT:-3000}"
 PID_FILE="./server.pid"
+SHUTDOWN_TIMEOUT=10
 
 # Function to print status
 print_status() {
@@ -39,6 +40,27 @@ print_error() {
 
 print_warning() {
     echo -e "${YELLOW}⚠${NC} $1"
+}
+
+stop_process() {
+    local pid=$1
+    local reason=$2
+
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        if [ -n "$reason" ]; then
+            print_warning "$reason"
+        fi
+        kill "$pid" 2>/dev/null || true
+        local wait_count=0
+        while kill -0 "$pid" 2>/dev/null && [ $wait_count -lt $SHUTDOWN_TIMEOUT ]; do
+            sleep 1
+            wait_count=$((wait_count + 1))
+        done
+        if kill -0 "$pid" 2>/dev/null; then
+            print_warning "Process $pid did not stop gracefully, forcing shutdown..."
+            kill -9 "$pid" 2>/dev/null || true
+        fi
+    fi
 }
 
 # Function to perform the build step (CRITICAL - life and death matter!)
@@ -100,18 +122,32 @@ configure_step() {
     
     print_status "Configuring environment..."
     
-    # Check if .env exists, create from example if not
+    # Check if .env exists, create from setup wizard or example if not
     if [ ! -f .env ]; then
         print_warning ".env file not found"
-        if [ -f .env.example ]; then
+        print_status "Running setup wizard..."
+        if npm run setup; then
+            print_success "Setup wizard completed"
+        else
+            print_error "Setup wizard failed"
+            return 1
+        fi
+        if [ ! -f .env ] && [ -f .env.example ]; then
             print_status "Creating .env from .env.example..."
             cp .env.example .env
             print_success ".env file created (please update with your credentials)"
-        else
-            print_warning "No .env.example found, skipping .env creation"
         fi
     else
         print_success ".env file already exists"
+    fi
+
+    if [ ! -f .env ] && [ ! -f .env.example ]; then
+        print_warning "No .env.example found, skipping .env creation"
+    fi
+
+    if [ ! -f .env ]; then
+        print_error ".env file is required for configuration"
+        return 1
     fi
     
     # Validate configuration files
@@ -149,8 +185,18 @@ test_step() {
     
     # Run integration tests (requires server)
     print_status "Starting server for integration tests..."
+    if command -v lsof &> /dev/null; then
+        for pid in $(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null); do
+            if [ -n "$pid" ]; then
+                stop_process "$pid" "Port $SERVER_PORT in use (PID $pid). Stopping existing process..."
+            fi
+        done
+    fi
+    local server_start_pid=""
+    local server_port_pid=""
     npm start &
-    SERVER_PID=$!
+    server_start_pid=$!
+    SERVER_PID=$server_start_pid
     echo $SERVER_PID > "$PID_FILE"
     print_status "Server started with PID $SERVER_PID"
     
@@ -169,14 +215,23 @@ test_step() {
             print_error "Server failed to start within ${max_wait} seconds"
             if [ -f "$PID_FILE" ]; then
                 local pid=$(cat "$PID_FILE" 2>/dev/null)
-                if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-                    kill "$pid" 2>/dev/null || true
-                fi
+                stop_process "$pid"
                 rm -f "$PID_FILE"
             fi
             return 1
         fi
     done
+
+    if command -v lsof &> /dev/null; then
+        server_port_pid=$(lsof -ti tcp:"$SERVER_PORT" 2>/dev/null | head -n1)
+        if [ -n "$server_port_pid" ] && [ "$server_port_pid" != "$SERVER_PID" ]; then
+            if ps -p "$server_port_pid" -o args= 2>/dev/null | grep -q 'server.js'; then
+                print_status "Detected server process on port $SERVER_PORT (PID $server_port_pid)"
+            else
+                server_port_pid=""
+            fi
+        fi
+    fi
     
     # Run integration tests
     print_status "Running integration tests..."
@@ -187,13 +242,17 @@ test_step() {
         print_error "Integration tests failed!"
         test_result=1
     fi
-    
+
     # Stop the server
     print_status "Stopping server..."
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE" 2>/dev/null)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-            kill "$pid" 2>/dev/null || true
+        stop_process "$pid"
+        if [ -n "$server_start_pid" ] && [ "$server_start_pid" != "$pid" ]; then
+            stop_process "$server_start_pid"
+        fi
+        if [ -n "$server_port_pid" ] && [ "$server_port_pid" != "$pid" ]; then
+            stop_process "$server_port_pid"
         fi
         rm -f "$PID_FILE"
     fi
@@ -204,6 +263,34 @@ test_step() {
     fi
     
     print_success "ALL TESTS PASSED!"
+    return 0
+}
+
+# Function to perform the code quality step
+quality_step() {
+    echo ""
+    echo "=================================================="
+    echo "✅ STEP 4: CODE QUALITY"
+    echo "=================================================="
+    echo ""
+
+    print_status "Running ESLint..."
+    if npm run lint; then
+        print_success "Lint checks passed"
+    else
+        print_error "Lint checks failed!"
+        return 1
+    fi
+
+    print_status "Checking formatting..."
+    if npm run format:check; then
+        print_success "Formatting checks passed"
+    else
+        print_error "Formatting checks failed!"
+        return 1
+    fi
+
+    print_success "CODE QUALITY CHECKS PASSED!"
     return 0
 }
 
@@ -233,7 +320,13 @@ run_workflow() {
         print_error "Test step failed on attempt $attempt"
         return 1
     fi
-    
+
+    # Step 4: Code Quality
+    if ! quality_step; then
+        print_error "Code quality step failed on attempt $attempt"
+        return 1
+    fi
+
     return 0
 }
 

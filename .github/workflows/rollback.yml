@@ -35,7 +35,7 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             valid: ${{ steps.validate.outputs.valid }}
-        
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v6
@@ -46,7 +46,7 @@ jobs:
               id: validate
               run: |
                   VERSION="${{ github.event.inputs.version }}"
-                  
+
                   # Check if it's a valid commit SHA or tag
                   if git rev-parse "$VERSION" >/dev/null 2>&1; then
                     echo "✅ Version $VERSION is valid"
@@ -84,7 +84,7 @@ jobs:
               run: |
                   VERSION="${{ github.event.inputs.version }}"
                   IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION"
-                  
+
                   # Try to pull the image
                   if docker pull "$IMAGE" 2>/dev/null; then
                     echo "✅ Image exists: $IMAGE"
@@ -113,7 +113,7 @@ jobs:
                       const environment = '${{ github.event.inputs.environment }}';
                       const version = '${{ github.event.inputs.version }}';
                       const reason = '${{ github.event.inputs.reason }}' || 'Manual rollback';
-                      
+
                       const deployment = await github.rest.repos.createDeployment({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
@@ -124,7 +124,7 @@ jobs:
                         description: `Rollback to ${version}: ${reason}`,
                         production_environment: environment === 'production'
                       });
-                      
+
                       await github.rest.repos.createDeploymentStatus({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
@@ -136,7 +136,7 @@ jobs:
                           ? 'https://production.example.com' 
                           : 'https://staging.example.com'
                       });
-                      
+
                       console.log('Rollback deployment created:', deployment.data.id);
 
             - name: Create rollback notification

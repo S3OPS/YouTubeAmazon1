@@ -39,7 +39,7 @@ jobs:
                   BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
                   BACKUP_TYPE="${{ github.event.inputs.backup_type || 'full' }}"
                   BACKUP_DIR="backup_${BACKUP_TYPE}_${BACKUP_DATE}"
-                  
+
                   mkdir -p "$BACKUP_DIR"
                   echo "BACKUP_DIR=$BACKUP_DIR" >> $GITHUB_ENV
                   echo "BACKUP_DATE=$BACKUP_DATE" >> $GITHUB_ENV
@@ -48,10 +48,10 @@ jobs:
             - name: Backup configuration files
               run: |
                   echo "📋 Backing up configuration files..."
-                  
+
                   # Create config backup directory
                   mkdir -p "$BACKUP_DIR/config"
-                  
+
                   # Backup essential configuration files
                   cp package.json "$BACKUP_DIR/config/"
                   cp package-lock.json "$BACKUP_DIR/config/" 2>/dev/null || true
@@ -61,67 +61,67 @@ jobs:
                   cp docker-compose.yml "$BACKUP_DIR/config/"
                   cp docker-compose.prod.yml "$BACKUP_DIR/config/"
                   cp Dockerfile "$BACKUP_DIR/config/"
-                  
+
                   # Backup GitHub workflows
                   mkdir -p "$BACKUP_DIR/workflows"
                   cp -r .github/workflows/* "$BACKUP_DIR/workflows/"
-                  
+
                   echo "✅ Configuration files backed up"
 
             - name: Backup documentation
               if: github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
               run: |
                   echo "📚 Backing up documentation..."
-                  
+
                   mkdir -p "$BACKUP_DIR/docs"
-                  
+
                   cp README.md "$BACKUP_DIR/docs/" 2>/dev/null || true
                   cp AUTOMATION.md "$BACKUP_DIR/docs/" 2>/dev/null || true
                   cp SETUP.md "$BACKUP_DIR/docs/" 2>/dev/null || true
                   cp SECURITY.md "$BACKUP_DIR/docs/" 2>/dev/null || true
                   cp CONTRIBUTING.md "$BACKUP_DIR/docs/" 2>/dev/null || true
                   cp CHANGELOG.md "$BACKUP_DIR/docs/" 2>/dev/null || true
-                  
+
                   echo "✅ Documentation backed up"
 
             - name: Backup scripts
               if: github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
               run: |
                   echo "📜 Backing up automation scripts..."
-                  
+
                   mkdir -p "$BACKUP_DIR/scripts"
-                  
-                  cp quick-start.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
+
+                  cp build-configure-test.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
                   cp monitor.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
                   cp setup.js "$BACKUP_DIR/scripts/" 2>/dev/null || true
                   cp automation-dashboard.sh "$BACKUP_DIR/scripts/" 2>/dev/null || true
                   cp validate-automation.js "$BACKUP_DIR/scripts/" 2>/dev/null || true
-                  
+
                   echo "✅ Scripts backed up"
 
             - name: Backup application logs (if exist)
               if: github.event.inputs.backup_type == 'logs' || github.event.inputs.backup_type == 'full' || !github.event.inputs.backup_type
               run: |
                   echo "📊 Backing up logs..."
-                  
+
                   # Note: In production, logs would be fetched from the server
                   # This is a placeholder for demonstration
                   mkdir -p "$BACKUP_DIR/logs"
-                  
+
                   if [ -d "logs" ]; then
                     cp -r logs/* "$BACKUP_DIR/logs/" 2>/dev/null || true
                   fi
-                  
+
                   if [ -f "monitoring.log" ]; then
                     cp monitoring.log "$BACKUP_DIR/logs/" 2>/dev/null || true
                   fi
-                  
+
                   echo "✅ Logs backed up"
 
             - name: Create backup metadata
               run: |
                   echo "📝 Creating backup metadata..."
-                  
+
                   cat > "$BACKUP_DIR/backup-info.json" << EOF
                   {
                     "backup_date": "$BACKUP_DATE",
@@ -134,19 +134,19 @@ jobs:
                     "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
                   }
                   EOF
-                  
+
                   cat "$BACKUP_DIR/backup-info.json"
                   echo "✅ Metadata created"
 
             - name: Create backup archive
               run: |
                   echo "🗜️  Creating backup archive..."
-                  
+
                   tar -czf "${BACKUP_DIR}.tar.gz" "$BACKUP_DIR"
-                  
+
                   ARCHIVE_SIZE=$(du -h "${BACKUP_DIR}.tar.gz" | cut -f1)
                   echo "ARCHIVE_SIZE=$ARCHIVE_SIZE" >> $GITHUB_ENV
-                  
+
                   echo "✅ Archive created: ${BACKUP_DIR}.tar.gz ($ARCHIVE_SIZE)"
 
             - name: Upload backup artifact
@@ -176,7 +176,7 @@ jobs:
               if: success()
               run: |
                   echo "📢 Backup completed successfully"
-                  
+
                   # Optional: Send notification to Slack/Discord
                   if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
                     curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \

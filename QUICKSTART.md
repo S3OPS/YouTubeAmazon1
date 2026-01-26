@@ -4,22 +4,22 @@ Get your Printify Dropshipping Store running in minutes with our **100% automate
 
 ## 🚀 Super Quick Start (Recommended)
 
-### One-Command Setup
+### One-Command Build-Configure-Test
 
 ```bash
-./quick-start.sh
+npm run build-configure-test
 ```
 
-That's it! The automated script will:
+That's it! The automated workflow will:
 - ✅ Check system requirements (Node.js, npm)
-- ✅ Install all dependencies  
-- ✅ Run the setup wizard
-- ✅ Configure your environment
-- ✅ Run all tests
-- ✅ Validate code quality
-- ✅ Provide next steps
+- ✅ Install dependencies
+- ✅ Run the setup wizard (creates `.env`)
+- ✅ Validate configuration
+- ✅ Run security and integration tests
+- ✅ Run lint and formatting checks
+- ✅ Retry the full workflow up to 3 times on failure
 
-**Time to complete:** ~2-3 minutes
+**Time to complete:** ~3-5 minutes (includes lint/format checks)
 
 ## 📋 Prerequisites
 
@@ -31,21 +31,25 @@ That's it! The automated script will:
 ## 🎯 Manual Setup
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Configure
+
 ```bash
 npm run setup
 ```
 
 ### 3. Start Server
+
 ```bash
 npm start
 ```
 
 ### 4. Open Browser
+
 Visit: `http://localhost:3000`
 
 ## 🐳 Docker Quick Start
