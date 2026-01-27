@@ -333,4 +333,4 @@ Feel free to fork this project and customize it for your needs!
 
 ---
 
-**Built with ❤️ for automated dropshipping with Printify**
+**Built with ❤️ for 100% Automated YouTube & Amazon Affiliate Video Marketing** 🎬💰
