@@ -1,7 +1,7 @@
 {
-    "name": "printify-dropshipping-store",
-    "version": "1.0.0",
-    "description": "Printify Dropshipping Store with secure backend API",
+    "name": "youtube-amazon-affiliate-automation",
+    "version": "2.0.0",
+    "description": "100% Automated YouTube Video Upload System with Amazon Affiliate Links",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
@@ -14,9 +14,10 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "setup": "node setup.js",
+        "setup:youtube": "node setup-youtube.js",
         "prepare": "husky",
         "monitor": "bash monitor.sh",
-        "docker:build": "docker build -t printify-dropshipping:latest .",
+        "docker:build": "docker build -t youtube-automation:latest .",
         "docker:run": "docker-compose up -d",
         "docker:stop": "docker-compose down",
         "docker:logs": "docker-compose logs -f",
@@ -27,9 +28,13 @@
         "automation:validate": "node validate-automation.js"
     },
     "keywords": [
-        "printify",
-        "dropshipping",
-        "ecommerce"
+        "youtube",
+        "automation",
+        "amazon",
+        "affiliate",
+        "video",
+        "ai-generated",
+        "content-automation"
     ],
     "author": "",
     "license": "ISC",
@@ -39,7 +44,9 @@
         "express": "^4.18.2",
         "express-rate-limit": "^8.2.1",
         "express-validator": "^7.3.1",
+        "googleapis": "^144.0.0",
         "helmet": "^8.1.0",
+        "node-cron": "^3.0.3",
         "uuid": "^13.0.0",
         "winston": "^3.19.0"
     },

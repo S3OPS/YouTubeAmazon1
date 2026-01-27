@@ -302,6 +302,234 @@ app.post(
     }
 );
 
+// ===========================================
+// YouTube Automation API Endpoints
+// ===========================================
+
+const youtubeApi = require('./youtube-api');
+const amazonAffiliate = require('./amazon-affiliate');
+const videoProcessor = require('./video-processor');
+const automationScheduler = require('./automation-scheduler');
+
+// Initialize automation on startup if enabled
+(async () => {
+    try {
+        const autoUpload = process.env.AUTO_UPLOAD === 'true';
+        if (autoUpload) {
+            await automationScheduler.initialize();
+            automationScheduler.start();
+            logger.info('Automation scheduler started successfully');
+        }
+    } catch (error) {
+        logger.error('Failed to start automation scheduler', {
+            error: error.message
+        });
+    }
+})();
+
+// Get automation status
+app.get('/api/automation/status', (req, res) => {
+    try {
+        const status = automationScheduler.getStatus();
+        res.json({
+            success: true,
+            ...status
+        });
+    } catch (error) {
+        logger.error('Error getting automation status', {
+            requestId: req.id,
+            error: error.message
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Manually trigger video processing and upload
+app.post('/api/automation/trigger', async (req, res) => {
+    try {
+        logger.info('Manual trigger requested', { requestId: req.id });
+        const results = await automationScheduler.triggerNow();
+        res.json({
+            success: true,
+            results
+        });
+    } catch (error) {
+        logger.error('Error triggering automation', {
+            requestId: req.id,
+            error: error.message
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Generate Amazon affiliate link
+app.post('/api/affiliate/generate', 
+    [
+        body('productUrl').notEmpty().trim().withMessage('Product URL or ASIN is required'),
+    ],
+    (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    errors: errors.array()
+                });
+            }
+
+            const { productUrl, campaign, content } = req.body;
+            const affiliateLink = amazonAffiliate.generateLink(productUrl, { campaign, content });
+            
+            res.json({
+                success: true,
+                affiliateLink,
+                productUrl
+            });
+        } catch (error) {
+            logger.error('Error generating affiliate link', {
+                requestId: req.id,
+                error: error.message
+            });
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+);
+
+// Upload video to YouTube
+app.post('/api/youtube/upload',
+    [
+        body('filePath').notEmpty().trim().withMessage('Video file path is required'),
+        body('title').notEmpty().trim().withMessage('Video title is required'),
+        body('description').optional().trim(),
+        body('tags').optional().isArray(),
+        body('products').optional().isArray(),
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    errors: errors.array()
+                });
+            }
+
+            const { filePath, title, description, tags, products } = req.body;
+
+            // Process video with affiliate links
+            const processedMetadata = await videoProcessor.processVideo({
+                filePath,
+                title,
+                description,
+                products: products || [],
+                tags: tags || []
+            });
+
+            // Upload to YouTube
+            const uploadResult = await youtubeApi.uploadVideo({
+                filePath: processedMetadata.filePath,
+                title: processedMetadata.title,
+                description: processedMetadata.description,
+                tags: processedMetadata.tags,
+                privacyStatus: req.body.privacyStatus || 'public'
+            });
+
+            if (uploadResult.success) {
+                await videoProcessor.markAsUploaded(
+                    filePath,
+                    uploadResult.videoId,
+                    uploadResult.videoUrl
+                );
+            }
+
+            res.json(uploadResult);
+        } catch (error) {
+            logger.error('Error uploading video', {
+                requestId: req.id,
+                error: error.message
+            });
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+);
+
+// Get YouTube OAuth URL
+app.get('/api/youtube/auth-url', (req, res) => {
+    try {
+        const authUrl = youtubeApi.getAuthUrl();
+        res.json({
+            success: true,
+            authUrl
+        });
+    } catch (error) {
+        logger.error('Error getting auth URL', {
+            requestId: req.id,
+            error: error.message
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// OAuth2 callback
+app.get('/oauth2callback', async (req, res) => {
+    try {
+        const { code } = req.query;
+        if (!code) {
+            return res.status(400).send('Authorization code missing');
+        }
+
+        const tokens = await youtubeApi.getTokensFromCode(code);
+        
+        res.send(`
+            <h1>Authorization Successful!</h1>
+            <p>Copy this refresh token to your .env file:</p>
+            <pre>YOUTUBE_REFRESH_TOKEN=${tokens.refresh_token}</pre>
+            <p>You can close this window.</p>
+        `);
+    } catch (error) {
+        logger.error('Error in OAuth callback', {
+            error: error.message
+        });
+        res.status(500).send('Authorization failed: ' + error.message);
+    }
+});
+
+// Scan for videos
+app.get('/api/videos/scan', async (req, res) => {
+    try {
+        const videos = await videoProcessor.scanForVideos();
+        res.json({
+            success: true,
+            count: videos.length,
+            videos
+        });
+    } catch (error) {
+        logger.error('Error scanning for videos', {
+            requestId: req.id,
+            error: error.message
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
