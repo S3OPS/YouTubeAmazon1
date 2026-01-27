@@ -1,41 +1,52 @@
 # Multi-stage build for YouTube Amazon Affiliate Automation System
+# Optimized for faster builds, smaller images, and better security
+
+# =============================================================================
+# BASE STAGE - Common base image for all stages
+# =============================================================================
 FROM node:18-alpine AS base
 
-# Install dependencies only when needed
+# Add labels for better image management
+LABEL maintainer="S3OPS" \
+      version="2.0.0" \
+      description="YouTube Amazon Affiliate Automation System"
+
+# =============================================================================
+# DEPENDENCIES STAGE - Install production dependencies only
+# =============================================================================
 FROM base AS deps
 WORKDIR /app
 
-# Copy package files
+# Copy package files first (leverage Docker cache)
 COPY package*.json ./
 
-# Install production dependencies
-RUN HUSKY=0 npm ci --only=production && npm cache clean --force
+# Install production dependencies (--omit=dev replaces deprecated --only=production)
+# HUSKY=0 prevents husky hooks from running during install
+RUN HUSKY=0 npm ci --omit=dev && npm cache clean --force
 
-# Build stage (if needed in future)
-FROM base AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-
-# Production image
+# =============================================================================
+# PRODUCTION STAGE - Final minimal image
+# =============================================================================
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV PORT=3000
+# Set production environment
+ENV NODE_ENV=production \
+    PORT=3000
 
-# Create a non-root user
+# Create a non-root user for security (principle of least privilege)
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 youtubebot
 
-# Copy necessary files
+# Copy production dependencies from deps stage
 COPY --from=deps --chown=youtubebot:nodejs /app/node_modules ./node_modules
+
+# Copy application code (respects .dockerignore)
 COPY --chown=youtubebot:nodejs . .
 
 # Create video directories with proper permissions
-RUN mkdir -p videos/processed && \
-    chown -R youtubebot:nodejs videos
+RUN mkdir -p videos/processed logs && \
+    chown -R youtubebot:nodejs videos logs
 
 # Switch to non-root user
 USER youtubebot
@@ -43,7 +54,7 @@ USER youtubebot
 # Expose port
 EXPOSE 3000
 
-# Health check
+# Health check - verify the application is responding
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
