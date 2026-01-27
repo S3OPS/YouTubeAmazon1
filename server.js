@@ -97,18 +97,33 @@ const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
 const PRINTIFY_API_BASE_URL = process.env.PRINTIFY_API_BASE_URL || 'https://api.printify.com/v1';
 
 // Validate environment variables
-if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
+const hasValidCredentials = PRINTIFY_API_TOKEN && 
+    PRINTIFY_SHOP_ID && 
+    PRINTIFY_API_TOKEN !== 'your_api_token_here' &&
+    PRINTIFY_SHOP_ID !== 'your_shop_id_here';
+
+if (!hasValidCredentials) {
     if (NODE_ENV === 'production') {
         logger.error('FATAL: Printify API credentials not configured in production!');
         logger.error('Set PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in environment variables');
+        logger.error('Get your API token from: https://printify.com/app/account/api');
         process.exit(1);
     } else {
-        logger.warn('Printify API credentials not configured - running in demo mode');
+        logger.warn('⚠️  Printify API credentials not configured - running in demo mode');
+        logger.warn('To connect to Printify API:');
+        logger.warn('1. Copy .env.example to .env');
+        logger.warn('2. Get your API token from: https://printify.com/app/account/api');
+        logger.warn('3. Update PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file');
     }
 }
 
 // Helper function to make Printify API requests
 async function makePrintifyRequest(endpoint, options = {}) {
+    // Validate credentials before making API request
+    if (!hasValidCredentials) {
+        throw new Error('Printify API credentials not configured. Please set PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in your .env file.');
+    }
+
     const url = `${PRINTIFY_API_BASE_URL}${endpoint}`;
     const headers = {
         Authorization: `Bearer ${PRINTIFY_API_TOKEN}`,
@@ -123,6 +138,10 @@ async function makePrintifyRequest(endpoint, options = {}) {
 
     if (!response.ok) {
         const errorText = await response.text();
+        // Provide helpful error messages for common issues
+        if (response.status === 401) {
+            throw new Error(`Authentication failed. Please check your PRINTIFY_API_TOKEN in .env file. Status: ${response.status}`);
+        }
         throw new Error(`Printify API error: ${response.status} - ${errorText}`);
     }
 
@@ -137,9 +156,10 @@ app.get('/api/products', async (req, res) => {
         // Set cache headers
         res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes
 
-        if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
-            return res.json({
-                error: 'API not configured',
+        if (!hasValidCredentials) {
+            return res.status(503).json({
+                error: 'Printify API not configured',
+                message: 'Please configure PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file',
                 demo: true,
                 data: [],
             });
@@ -186,9 +206,10 @@ app.get('/api/products', async (req, res) => {
 // Get single product
 app.get('/api/products/:productId', async (req, res) => {
     try {
-        if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
+        if (!hasValidCredentials) {
             return res.status(503).json({
-                error: 'API not configured',
+                error: 'Printify API not configured',
+                message: 'Please configure PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file',
             });
         }
 
@@ -241,10 +262,10 @@ app.post(
                 });
             }
 
-            if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
+            if (!hasValidCredentials) {
                 return res.status(503).json({
-                    error: 'API not configured',
-                    message: 'Cannot create orders in demo mode',
+                    error: 'Printify API not configured',
+                    message: 'Cannot create orders - please configure PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file',
                 });
             }
 
@@ -275,7 +296,7 @@ app.get('/api/health', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.json({
         status: 'ok',
-        configured: !!(PRINTIFY_API_TOKEN && PRINTIFY_SHOP_ID),
+        configured: hasValidCredentials,
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: NODE_ENV,
@@ -292,17 +313,19 @@ const server = app.listen(PORT, () => {
     logger.info(`Server starting`, {
         port: PORT,
         environment: NODE_ENV,
-        apiConfigured: !!(PRINTIFY_API_TOKEN && PRINTIFY_SHOP_ID),
+        apiConfigured: hasValidCredentials,
     });
 
     if (NODE_ENV === 'development') {
         console.log(`🚀 Server running on http://localhost:${PORT}`);
         console.log(`📦 API endpoints available at http://localhost:${PORT}/api`);
 
-        if (PRINTIFY_API_TOKEN && PRINTIFY_SHOP_ID) {
+        if (hasValidCredentials) {
             console.log('✅ Printify API configured');
         } else {
             console.log('⚠️  Running in DEMO mode - configure .env file for real API access');
+            console.log('📝 Copy .env.example to .env and add your Printify credentials');
+            console.log('🔑 Get API token: https://printify.com/app/account/api');
         }
     }
 });
