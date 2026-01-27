@@ -1,21 +1,29 @@
 version: '3.8'
 
 services:
-    app:
+    youtube-automation:
         build:
             context: .
             dockerfile: Dockerfile
+        image: youtube-automation:latest
+        container_name: youtube-automation
         ports:
             - '${PORT:-3000}:3000'
         environment:
-            - NODE_ENV=production
-            - PRINTIFY_API_TOKEN=${PRINTIFY_API_TOKEN}
-            - PRINTIFY_SHOP_ID=${PRINTIFY_SHOP_ID}
-            - PRINTIFY_API_BASE_URL=${PRINTIFY_API_BASE_URL:-https://api.printify.com/v1}
+            - NODE_ENV=${NODE_ENV:-development}
+            - YOUTUBE_CLIENT_ID=${YOUTUBE_CLIENT_ID}
+            - YOUTUBE_CLIENT_SECRET=${YOUTUBE_CLIENT_SECRET}
+            - YOUTUBE_REFRESH_TOKEN=${YOUTUBE_REFRESH_TOKEN}
+            - AMAZON_AFFILIATE_TAG=${AMAZON_AFFILIATE_TAG}
+            - AUTO_UPLOAD=${AUTO_UPLOAD:-false}
+            - UPLOAD_SCHEDULE=${UPLOAD_SCHEDULE:-0 10 * * *}
             - PORT=3000
             - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
         env_file:
             - .env
+        volumes:
+            - ./videos:/app/videos
+            - ./videos/processed:/app/videos/processed
         restart: unless-stopped
         healthcheck:
             test:

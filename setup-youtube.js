@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 // YouTube Automation Setup Wizard
 // Interactive setup for YouTube Amazon Affiliate automation system
@@ -9,7 +10,7 @@ const path = require('path');
 
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
 });
 
 const colors = {
@@ -19,7 +20,7 @@ const colors = {
     yellow: '\x1b[33m',
     blue: '\x1b[34m',
     red: '\x1b[31m',
-    cyan: '\x1b[36m'
+    cyan: '\x1b[36m',
 };
 
 function colorize(text, color) {
@@ -40,17 +41,13 @@ function info(text) {
     console.log(colorize('ℹ️  ' + text, colors.blue));
 }
 
-function warning(text) {
-    console.log(colorize('⚠️  ' + text, colors.yellow));
-}
-
 function error(text) {
     console.log(colorize('❌ ' + text, colors.red));
 }
 
 function question(prompt) {
-    return new Promise(resolve => {
-        rl.question(colorize(prompt, colors.cyan), answer => {
+    return new Promise((resolve) => {
+        rl.question(colorize(prompt, colors.cyan), (answer) => {
             resolve(answer.trim());
         });
     });
@@ -58,7 +55,7 @@ function question(prompt) {
 
 async function setupYouTubeAutomation() {
     header('🎬 YouTube Amazon Affiliate Automation Setup');
-    
+
     console.log('Welcome to the YouTube Automation Setup Wizard!\n');
     console.log('This wizard will help you configure:');
     console.log('  • YouTube API credentials');
@@ -70,7 +67,7 @@ async function setupYouTubeAutomation() {
 
     // YouTube Configuration
     header('📺 YouTube API Configuration');
-    
+
     console.log('To get YouTube API credentials:');
     console.log('1. Go to https://console.cloud.google.com/');
     console.log('2. Create a new project or select existing one');
@@ -80,76 +77,86 @@ async function setupYouTubeAutomation() {
 
     config.YOUTUBE_CLIENT_ID = await question('Enter YouTube Client ID: ');
     config.YOUTUBE_CLIENT_SECRET = await question('Enter YouTube Client Secret: ');
-    config.YOUTUBE_REDIRECT_URI = await question('Enter Redirect URI [http://localhost:3000/oauth2callback]: ') 
-        || 'http://localhost:3000/oauth2callback';
+    config.YOUTUBE_REDIRECT_URI =
+        (await question('Enter Redirect URI [http://localhost:3000/oauth2callback]: ')) ||
+        'http://localhost:3000/oauth2callback';
 
     info('You will need to authorize the app to get a refresh token.');
     info('After starting the server, visit /api/youtube/auth-url to begin authorization.');
-    config.YOUTUBE_REFRESH_TOKEN = await question('Enter YouTube Refresh Token (or leave blank for now): ') 
-        || 'your_youtube_refresh_token_here';
+    config.YOUTUBE_REFRESH_TOKEN =
+        (await question('Enter YouTube Refresh Token (or leave blank for now): ')) ||
+        'your_youtube_refresh_token_here';
 
     // Amazon Affiliate Configuration
     header('💰 Amazon Affiliate Configuration');
-    
+
     console.log('To get your Amazon Affiliate tag:');
     console.log('1. Sign up at https://affiliate-program.amazon.com/');
     console.log('2. Complete the application');
     console.log('3. Get your affiliate tag from the dashboard\n');
 
     config.AMAZON_AFFILIATE_TAG = await question('Enter Amazon Affiliate Tag: ');
-    config.AMAZON_TRACKING_ID = await question('Enter Amazon Tracking ID [same as tag]: ') 
-        || config.AMAZON_AFFILIATE_TAG;
+    config.AMAZON_TRACKING_ID =
+        (await question('Enter Amazon Tracking ID [same as tag]: ')) || config.AMAZON_AFFILIATE_TAG;
 
     // Video Processing Configuration
     header('📹 Video Processing Configuration');
-    
-    config.VIDEO_DIRECTORY = await question('Video directory path [./videos]: ') || './videos';
-    config.PROCESSED_VIDEO_DIRECTORY = await question('Processed video directory [./videos/processed]: ') 
-        || './videos/processed';
+
+    config.VIDEO_DIRECTORY = (await question('Video directory path [./videos]: ')) || './videos';
+    config.PROCESSED_VIDEO_DIRECTORY =
+        (await question('Processed video directory [./videos/processed]: ')) ||
+        './videos/processed';
 
     // Automation Configuration
     header('⚙️  Automation Configuration');
-    
+
     const enableAutoUpload = await question('Enable automatic video uploads? (yes/no) [no]: ');
-    config.AUTO_UPLOAD = enableAutoUpload.toLowerCase() === 'yes' || enableAutoUpload.toLowerCase() === 'y' 
-        ? 'true' : 'false';
+    config.AUTO_UPLOAD =
+        enableAutoUpload.toLowerCase() === 'yes' || enableAutoUpload.toLowerCase() === 'y'
+            ? 'true'
+            : 'false';
 
     if (config.AUTO_UPLOAD === 'true') {
         console.log('\nUpload Schedule Examples:');
         console.log('  0 10 * * *   - Daily at 10 AM');
         console.log('  0 14 * * 1-5 - Weekdays at 2 PM');
         console.log('  0 */6 * * *  - Every 6 hours\n');
-        
-        config.UPLOAD_SCHEDULE = await question('Enter upload schedule [0 10 * * *]: ') || '0 10 * * *';
+
+        config.UPLOAD_SCHEDULE =
+            (await question('Enter upload schedule [0 10 * * *]: ')) || '0 10 * * *';
     } else {
         config.UPLOAD_SCHEDULE = '0 10 * * *';
     }
 
-    config.DEFAULT_PRIVACY_STATUS = await question('Default privacy status (public/unlisted/private) [public]: ') 
-        || 'public';
+    config.DEFAULT_PRIVACY_STATUS =
+        (await question('Default privacy status (public/unlisted/private) [public]: ')) || 'public';
 
     // Server Configuration
     header('🖥️  Server Configuration');
-    
-    config.PORT = await question('Server port [3000]: ') || '3000';
-    config.NODE_ENV = await question('Environment (development/production) [development]: ') || 'development';
-    config.ALLOWED_ORIGINS = await question('Allowed CORS origins [http://localhost:3000]: ') 
-        || 'http://localhost:3000';
+
+    config.PORT = (await question('Server port [3000]: ')) || '3000';
+    config.NODE_ENV =
+        (await question('Environment (development/production) [development]: ')) || 'development';
+    config.ALLOWED_ORIGINS =
+        (await question('Allowed CORS origins [http://localhost:3000]: ')) ||
+        'http://localhost:3000';
 
     // Legacy Printify (optional)
     header('🛍️  Legacy Printify Configuration (Optional)');
-    
+
     const includePrintify = await question('Include Printify configuration? (yes/no) [no]: ');
     if (includePrintify.toLowerCase() === 'yes' || includePrintify.toLowerCase() === 'y') {
-        config.PRINTIFY_API_TOKEN = await question('Printify API Token: ') || 'your_api_token_here';
-        config.PRINTIFY_SHOP_ID = await question('Printify Shop ID: ') || 'your_shop_id_here';
-        config.PRINTIFY_API_BASE_URL = await question('Printify API Base URL [https://api.printify.com/v1]: ') 
-            || 'https://api.printify.com/v1';
+        config.PRINTIFY_API_TOKEN =
+            (await question('Printify API Token: ')) || 'your_api_token_here';
+        config.PRINTIFY_SHOP_ID = (await question('Printify Shop ID: ')) || 'your_shop_id_here';
+        config.PRINTIFY_API_BASE_URL =
+            (await question('Printify API Base URL [https://api.printify.com/v1]: ')) ||
+            'https://api.printify.com/v1';
     }
 
     // Generate .env file
     header('💾 Generating Configuration');
-    
+
     const envContent = generateEnvContent(config);
     const envPath = path.join(__dirname, '.env');
 
@@ -171,7 +178,7 @@ async function setupYouTubeAutomation() {
 
     // Create directories
     header('📁 Creating Directories');
-    
+
     try {
         if (!fs.existsSync(config.VIDEO_DIRECTORY)) {
             fs.mkdirSync(config.VIDEO_DIRECTORY, { recursive: true });
@@ -192,9 +199,9 @@ async function setupYouTubeAutomation() {
 
     // Final instructions
     header('🎉 Setup Complete!');
-    
+
     console.log('Next steps:\n');
-    
+
     if (config.YOUTUBE_REFRESH_TOKEN === 'your_youtube_refresh_token_here') {
         console.log('1. Start the server:');
         console.log(colorize('   npm start', colors.green));
@@ -274,18 +281,22 @@ PORT=${config.PORT}
 NODE_ENV=${config.NODE_ENV}
 ALLOWED_ORIGINS=${config.ALLOWED_ORIGINS}
 
-${config.PRINTIFY_API_TOKEN ? `
+${
+    config.PRINTIFY_API_TOKEN
+        ? `
 # ===========================================
 # Legacy Printify Configuration (Optional)
 # ===========================================
 PRINTIFY_API_TOKEN=${config.PRINTIFY_API_TOKEN}
 PRINTIFY_SHOP_ID=${config.PRINTIFY_SHOP_ID}
 PRINTIFY_API_BASE_URL=${config.PRINTIFY_API_BASE_URL}
-` : ''}`;
+`
+        : ''
+}`;
 }
 
 // Run setup
-setupYouTubeAutomation().catch(err => {
+setupYouTubeAutomation().catch((err) => {
     error(`Setup failed: ${err.message}`);
     rl.close();
     process.exit(1);

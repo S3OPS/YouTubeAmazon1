@@ -1,4 +1,4 @@
-# Multi-stage build for production
+# Multi-stage build for YouTube Amazon Affiliate Automation System
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
@@ -27,14 +27,18 @@ ENV PORT=3000
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 dropship
+    adduser --system --uid 1001 youtubebot
 
 # Copy necessary files
-COPY --from=deps --chown=dropship:nodejs /app/node_modules ./node_modules
-COPY --chown=dropship:nodejs . .
+COPY --from=deps --chown=youtubebot:nodejs /app/node_modules ./node_modules
+COPY --chown=youtubebot:nodejs . .
+
+# Create video directories with proper permissions
+RUN mkdir -p videos/processed && \
+    chown -R youtubebot:nodejs videos
 
 # Switch to non-root user
-USER dropship
+USER youtubebot
 
 # Expose port
 EXPOSE 3000

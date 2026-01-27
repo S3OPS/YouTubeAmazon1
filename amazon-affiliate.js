@@ -21,7 +21,7 @@ class AmazonAffiliate {
 
         this.initialized = true;
         logger.info('Amazon Affiliate module initialized', {
-            tag: this.affiliateTag
+            tag: this.affiliateTag,
         });
     }
 
@@ -59,8 +59,9 @@ class AmazonAffiliate {
             }
 
             // Build affiliate link
-            const params = new URLSearchParams({
-                tag: this.affiliateTag
+            const urlModule = require('url');
+            const params = new urlModule.URLSearchParams({
+                tag: this.affiliateTag,
             });
 
             // Add optional tracking parameters
@@ -75,14 +76,14 @@ class AmazonAffiliate {
 
             logger.info('Generated affiliate link', {
                 asin,
-                url: affiliateLink.substring(0, 100) + '...'
+                url: affiliateLink.substring(0, 100) + '...',
             });
 
             return affiliateLink;
         } catch (error) {
             logger.error('Failed to generate affiliate link', {
                 error: error.message,
-                productUrl
+                productUrl,
             });
             throw error;
         }
@@ -102,7 +103,7 @@ class AmazonAffiliate {
         return products.map((product, index) => {
             const linkOptions = {
                 ...options,
-                content: options.content || `product-${index + 1}`
+                content: options.content || `product-${index + 1}`,
             };
             return this.generateLink(product, linkOptions);
         });
@@ -126,7 +127,7 @@ class AmazonAffiliate {
         const {
             title = '',
             products = [],
-            disclaimer = '* As an Amazon Associate, I earn from qualifying purchases.'
+            disclaimer = '* As an Amazon Associate, I earn from qualifying purchases.',
         } = params;
 
         let description = title ? `${title}\n\n` : '';
@@ -136,7 +137,7 @@ class AmazonAffiliate {
             description += '🛒 Products Featured:\n\n';
             products.forEach((product, index) => {
                 const affiliateLink = this.generateLink(product.url, {
-                    content: `product-${index + 1}`
+                    content: `product-${index + 1}`,
                 });
                 description += `${index + 1}. ${product.name}\n   ${affiliateLink}\n\n`;
             });
@@ -149,7 +150,7 @@ class AmazonAffiliate {
 
         logger.info('Created affiliate description', {
             productCount: products.length,
-            length: description.length
+            length: description.length,
         });
 
         return description;
@@ -163,12 +164,12 @@ class AmazonAffiliate {
     extractProducts(description) {
         const products = [];
         const asinRegex = /amazon\.com\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
-        
+
         let match;
         while ((match = asinRegex.exec(description)) !== null) {
             products.push({
                 asin: match[1],
-                url: `${this.baseUrl}/dp/${match[1]}`
+                url: `${this.baseUrl}/dp/${match[1]}`,
             });
         }
 
@@ -186,8 +187,9 @@ class AmazonAffiliate {
         }
 
         try {
-            const url = new URL(link);
-            const tag = url.searchParams.get('tag');
+            const urlModule = require('url');
+            const parsedUrl = new urlModule.URL(link);
+            const tag = parsedUrl.searchParams.get('tag');
             return tag === this.affiliateTag;
         } catch {
             return false;

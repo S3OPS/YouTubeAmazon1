@@ -22,11 +22,11 @@ class VideoProcessor {
             await fs.mkdir(this.processedDirectory, { recursive: true });
             logger.info('Video processor initialized', {
                 videoDirectory: this.videoDirectory,
-                processedDirectory: this.processedDirectory
+                processedDirectory: this.processedDirectory,
             });
         } catch (error) {
             logger.error('Failed to initialize video processor', {
-                error: error.message
+                error: error.message,
             });
             throw error;
         }
@@ -44,13 +44,7 @@ class VideoProcessor {
      */
     async processVideo(video) {
         try {
-            const {
-                filePath,
-                title,
-                description = '',
-                products = [],
-                tags = []
-            } = video;
+            const { filePath, title, description = '', products = [], tags = [] } = video;
 
             logger.info('Processing video', { title, filePath });
 
@@ -65,7 +59,7 @@ class VideoProcessor {
             const affiliateDescription = amazonAffiliate.createDescription({
                 title: description,
                 products,
-                disclaimer: '* As an Amazon Associate, I earn from qualifying purchases.'
+                disclaimer: '* As an Amazon Associate, I earn from qualifying purchases.',
             });
 
             // Add affiliate-related tags
@@ -74,7 +68,7 @@ class VideoProcessor {
                 'amazon',
                 'affiliate',
                 'product review',
-                'recommendations'
+                'recommendations',
             ];
 
             // Create processed metadata
@@ -84,7 +78,7 @@ class VideoProcessor {
                 description: affiliateDescription,
                 tags: enhancedTags,
                 products,
-                processedAt: new Date().toISOString()
+                processedAt: new Date().toISOString(),
             };
 
             // Save metadata
@@ -97,14 +91,14 @@ class VideoProcessor {
             logger.info('Video processed successfully', {
                 title,
                 metadataPath,
-                productCount: products.length
+                productCount: products.length,
             });
 
             return processedMetadata;
         } catch (error) {
             logger.error('Failed to process video', {
                 error: error.message,
-                video: video.title
+                video: video.title,
             });
             throw error;
         }
@@ -118,24 +112,24 @@ class VideoProcessor {
         try {
             const files = await fs.readdir(this.videoDirectory);
             const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
-            
+
             const videoFiles = files
-                .filter(file => {
+                .filter((file) => {
                     const ext = path.extname(file).toLowerCase();
                     return videoExtensions.includes(ext);
                 })
-                .map(file => path.join(this.videoDirectory, file));
+                .map((file) => path.join(this.videoDirectory, file));
 
             logger.info('Scanned for videos', {
                 directory: this.videoDirectory,
-                count: videoFiles.length
+                count: videoFiles.length,
             });
 
             return videoFiles;
         } catch (error) {
             logger.error('Failed to scan for videos', {
                 error: error.message,
-                directory: this.videoDirectory
+                directory: this.videoDirectory,
             });
             throw error;
         }
@@ -158,12 +152,12 @@ class VideoProcessor {
                 extension,
                 size: stats.size,
                 created: stats.birthtime,
-                modified: stats.mtime
+                modified: stats.mtime,
             };
         } catch (error) {
             logger.error('Failed to get video metadata', {
                 error: error.message,
-                filePath
+                filePath,
             });
             throw error;
         }
@@ -183,7 +177,7 @@ class VideoProcessor {
 
             const data = await fs.readFile(metadataPath, 'utf8');
             return JSON.parse(data);
-        } catch (error) {
+        } catch {
             // File doesn't exist or can't be read
             return null;
         }
@@ -214,13 +208,13 @@ class VideoProcessor {
                 logger.info('Marked video as uploaded', {
                     videoFilePath,
                     videoId,
-                    videoUrl
+                    videoUrl,
                 });
             }
         } catch (error) {
             logger.error('Failed to mark video as uploaded', {
                 error: error.message,
-                videoFilePath
+                videoFilePath,
             });
         }
     }
@@ -240,7 +234,7 @@ class VideoProcessor {
             for (const file of files) {
                 const filePath = path.join(this.processedDirectory, file);
                 const stats = await fs.stat(filePath);
-                
+
                 if (now - stats.mtime.getTime() > cutoff) {
                     await fs.unlink(filePath);
                     deleted++;
@@ -249,13 +243,13 @@ class VideoProcessor {
 
             logger.info('Cleaned up old files', {
                 daysOld,
-                deleted
+                deleted,
             });
 
             return deleted;
         } catch (error) {
             logger.error('Failed to cleanup old files', {
-                error: error.message
+                error: error.message,
             });
             throw error;
         }

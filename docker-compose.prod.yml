@@ -4,7 +4,7 @@ version: '3.8'
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 services:
-    app:
+    youtube-automation:
         restart: always
         environment:
             - NODE_ENV=production
