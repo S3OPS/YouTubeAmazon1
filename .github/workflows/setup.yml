@@ -136,6 +136,6 @@ jobs:
               with:
                   context: .
                   push: false
-                  tags: printify-dropshipping:${{ github.sha }}
+                  tags: youtube-automation:${{ github.sha }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max

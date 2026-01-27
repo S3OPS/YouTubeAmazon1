@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for your interest in contributing to the Printify Dropshipping Store! This guide will help you get started with contributing to this fully automated project.
+Thank you for your interest in contributing to the YouTube Amazon Affiliate Automation System! This guide will help you get started with contributing to this fully automated project.
 
 ## 🚀 Getting Started
 
@@ -28,7 +28,7 @@ Thank you for your interest in contributing to the Printify Dropshipping Store! 
    Or manually:
    ```bash
    npm install
-   npm run setup
+   npm run setup:youtube
    ```
 
 3. **Create a feature branch**
@@ -295,9 +295,12 @@ npm run docker:build
   - [SETUP.md](SETUP.md) - Setup instructions
   - [SECURITY.md](SECURITY.md) - Security guidelines
   - [README.md](README.md) - Project overview
+  - [YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md) - YouTube automation guide
 
 - **External Resources**
-  - [Printify API Docs](https://developers.printify.com/)
+  - [YouTube Data API v3](https://developers.google.com/youtube/v3)
+  - [Google Cloud Console](https://console.cloud.google.com/)
+  - [Amazon Associates](https://affiliate-program.amazon.com/)
   - [Express.js Guide](https://expressjs.com/)
   - [ESLint Rules](https://eslint.org/docs/rules/)
   - [Prettier Options](https://prettier.io/docs/en/options.html)

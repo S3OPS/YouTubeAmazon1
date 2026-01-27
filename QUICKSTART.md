@@ -1,6 +1,6 @@
-# Quick Start Guide
+# Quick Start Guide - YouTube Amazon Affiliate Automation
 
-Get your Printify Dropshipping Store running in minutes with our **100% automated setup**.
+Get your YouTube Amazon Affiliate Automation System running in minutes with our **100% automated setup**.
 
 ## 🚀 Super Quick Start (Recommended)
 
@@ -25,8 +25,9 @@ That's it! The automated workflow will:
 
 ✅ **Node.js v14+** - [Download](https://nodejs.org/)  
 ✅ **npm v6+** - Comes with Node.js  
-✅ **Printify Account** - [Sign up](https://printify.com)  
-✅ **API Token** - Get from [Printify Settings](https://printify.com/app/account/api)
+✅ **YouTube Account** - [Create one](https://www.youtube.com/)  
+✅ **Google Cloud Project** - [Console](https://console.cloud.google.com/)  
+✅ **Amazon Associates Account** - [Sign up](https://affiliate-program.amazon.com/)
 
 ## 🎯 Manual Setup
 
@@ -36,11 +37,17 @@ That's it! The automated workflow will:
 npm install
 ```
 
-### 2. Configure
+### 2. Configure YouTube Automation
 
 ```bash
-npm run setup
+npm run setup:youtube
 ```
+
+The wizard will guide you through:
+- YouTube API credentials setup
+- Amazon affiliate configuration
+- Automation schedule
+- Directory setup
 
 ### 3. Start Server
 
@@ -56,7 +63,7 @@ Visit: `http://localhost:3000`
 
 ```bash
 cp .env.example .env
-# Edit .env with your credentials
+# Edit .env with your YouTube and Amazon credentials
 npm run docker:run
 ```
 
@@ -66,14 +73,35 @@ npm run docker:run
 npm test
 ```
 
-Expected: All security tests pass ✅
+Expected: All security and integration tests pass ✅
+
+## 📹 Add Your First Video
+
+1. Place AI-generated video in `./videos/` directory
+2. Optionally create a config file `video-name.json`:
+   ```json
+   {
+     "title": "Amazing Product Review",
+     "description": "Check out these products!",
+     "products": [
+       { "name": "Cool Gadget", "url": "B08XXXXX" }
+     ],
+     "tags": ["review", "tech", "amazon"]
+   }
+   ```
+3. Trigger upload:
+   ```bash
+   curl -X POST http://localhost:3000/api/automation/trigger
+   ```
 
 ## 📚 Documentation
 
-- [AUTOMATION.md](AUTOMATION.md) - Full automation guide
-- [SETUP.md](SETUP.md) - Detailed deployment  
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Development guide
+- [README.md](README.md) - Main documentation
+- [YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md) - Complete automation guide
+- [AUTOMATION.md](AUTOMATION.md) - CI/CD and DevOps automation
+- [SETUP.md](SETUP.md) - Detailed setup instructions
 
 ---
 
-**Automation level:** 100% ✅
+**Automation level:** 100% ✅  
+**Primary Focus:** YouTube Video Automation with Amazon Affiliate Links

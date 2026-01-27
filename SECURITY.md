@@ -17,7 +17,7 @@ This application implements production-ready security best practices for API cre
 ### API Security
 
 - ✅ Store API tokens securely using environment variables
-- ✅ Rotate API tokens regularly via Printify dashboard
+- ✅ Rotate OAuth tokens regularly via Google Cloud Console
 - ✅ Use least-privilege access (only necessary scopes)
 - ✅ Monitor API usage through backend logging
 - Backend validates and sanitizes all incoming requests

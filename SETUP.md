@@ -1,20 +1,22 @@
-# Printify Store Setup Guide
+# YouTube Amazon Affiliate Automation Setup Guide
 
-## ✅ Backend API Configuration
+## ✅ System Overview
 
-Your Printify dropshipping store now uses a secure backend architecture:
+Your YouTube Amazon Affiliate Automation System uses a secure backend architecture:
 - **Backend Server**: Node.js/Express (`server.js`)
 - **API Credentials**: Stored in `.env` file (server-side)
 - **Security**: API tokens never exposed to the browser
+- **YouTube Integration**: OAuth2 authentication with YouTube Data API v3
+- **Amazon Affiliate**: Automatic affiliate link generation
 
 ## 🚀 Quick Start
 
 ### Automated Setup (Recommended)
 
-Run the setup wizard to configure your environment:
+Run the YouTube setup wizard to configure your environment:
 
 ```bash
-npm run setup
+npm run setup:youtube
 ```
 
 The setup wizard will:
@@ -22,6 +24,8 @@ The setup wizard will:
 ✅ Validate your configuration  
 ✅ Provide step-by-step guidance  
 ✅ Show you where to get API credentials  
+✅ Guide you through YouTube OAuth2 setup
+✅ Configure Amazon affiliate settings
 
 ### Manual Setup
 
@@ -34,25 +38,49 @@ If you prefer manual setup, follow these steps:
    cp .env.example .env
    ```
 
-2. Edit `.env` and add your Printify credentials:
+2. Edit `.env` and add your YouTube and Amazon credentials:
    ```
-   PRINTIFY_API_TOKEN=your_api_token_here
-   PRINTIFY_SHOP_ID=your_shop_id_here
-   PRINTIFY_API_BASE_URL=https://api.printify.com/v1
+   YOUTUBE_CLIENT_ID=your_youtube_client_id_here
+   YOUTUBE_CLIENT_SECRET=your_youtube_client_secret_here
+   YOUTUBE_REDIRECT_URI=http://localhost:3000/oauth2callback
+   YOUTUBE_REFRESH_TOKEN=your_youtube_refresh_token_here
+   AMAZON_AFFILIATE_TAG=your_affiliate_tag_here
+   AUTO_UPLOAD=false
+   UPLOAD_SCHEDULE=0 10 * * *
    PORT=3000
    ```
 
 **Where to get your credentials:**
-- **API Token**: https://printify.com/app/account/api
-- **Shop ID**: Found in your Printify shop settings
+- **YouTube API**: https://console.cloud.google.com/ (Enable YouTube Data API v3)
+- **Amazon Affiliate**: https://affiliate-program.amazon.com/
 
-### Step 2: Install Dependencies
+### Step 2: Get YouTube API Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the YouTube Data API v3
+4. Create OAuth 2.0 credentials:
+   - Application type: Web application
+   - Authorized redirect URIs: `http://localhost:3000/oauth2callback`
+5. Copy the Client ID and Client Secret to your `.env` file
+6. Run the setup wizard to get your refresh token:
+   ```bash
+   npm run setup:youtube
+   ```
+
+### Step 3: Configure Amazon Affiliate
+
+1. Sign up for [Amazon Associates](https://affiliate-program.amazon.com/)
+2. Get your affiliate tag from the dashboard
+3. Add it to your `.env` file
+
+### Step 4: Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Step 3: Start the Server
+### Step 5: Start the Server
 
 ```bash
 npm start
@@ -60,7 +88,7 @@ npm start
 
 The server will start on http://localhost:3000
 
-### Step 4: Access Your Store
+### Step 6: Access the System
 
 Open your browser and go to:
 ```
@@ -70,10 +98,12 @@ http://localhost:3000
 ## 🔒 Security Features
 
 ✅ **API credentials stored server-side** in environment variables  
-✅ **No credentials in client-side code** (app.js is clean)  
-✅ **Backend proxies all Printify API calls**  
+✅ **OAuth2 authentication** for YouTube API  
+✅ **No credentials in client-side code**  
 ✅ **CORS properly configured**  
-✅ **`.env` file excluded from git**
+✅ **`.env` file excluded from git**  
+✅ **Rate limiting** on all API endpoints  
+✅ **Security headers** with Helmet.js
 
 ## 🌐 Production Hosting
 
@@ -104,93 +134,124 @@ For production deployment, you can host on:
    - Use PM2 to keep server running
    - Set up nginx as reverse proxy
 
+### Docker Deployment
+
+Build and run with Docker:
+```bash
+npm run docker:build
+npm run docker:run
+```
+
+For production:
+```bash
+npm run docker:prod
+```
+
 ## 📝 Architecture Overview
 
-### Before (Insecure)
 ```
-Browser → Printify API (with exposed token)
-```
-
-### After (Secure) ✅
-```
-Browser → Backend API → Printify API
-           (with credentials in .env)
+AI Videos → Video Processor → YouTube API
+                ↓
+         Amazon Affiliate Links
+                ↓
+         Automated Upload
 ```
 
-The backend server (`server.js`) now:
-- Stores credentials securely in environment variables
-- Provides API endpoints that the frontend calls
-- Proxies requests to Printify API
-- Never exposes sensitive data to the browser
-
-## 📝 Demo Mode
-
-When API credentials are not properly configured or API calls fail, the store runs in demo mode with mock products. This allows you to:
-- Test the UI and functionality
-- See the design and layout
-- Understand the workflow before connecting to real API
-
-The backend will automatically fall back to demo mode if:
-- `.env` file is missing
-- Printify API credentials are not set
-- Printify API is unavailable
+The system:
+- Scans the `./videos/` directory for new AI-generated videos
+- Processes video metadata and configuration files
+- Generates Amazon affiliate links from product ASINs
+- Injects affiliate links into video descriptions
+- Uploads videos to YouTube with proper metadata
+- Tracks all uploads and maintains processing history
 
 ## 🎨 Customization
 
-### Update Store Branding
+### Automation Schedule
 
-Edit `index.html`:
-```html
-<h1>🛍️ Your Store Name</h1>
+Edit `.env` to change the upload schedule:
+```env
+# Daily at 10 AM
+UPLOAD_SCHEDULE=0 10 * * *
+
+# Weekdays at 2 PM
+UPLOAD_SCHEDULE=0 14 * * 1-5
+
+# Every 6 hours
+UPLOAD_SCHEDULE=0 */6 * * *
 ```
 
-### Modify Colors and Styles
+### Video Privacy Settings
 
-Edit `styles.css`:
-- Change the color scheme
-- Update fonts and typography
-- Adjust layout and spacing
+```env
+DEFAULT_PRIVACY_STATUS=public   # or unlisted, private
+```
 
-### Add Custom Products
+### Video Directory
 
-When properly connected to Printify API, products will automatically sync from your Printify shop.
+```env
+VIDEO_DIRECTORY=./videos
+PROCESSED_VIDEO_DIRECTORY=./videos/processed
+```
 
-## 🧪 Testing the Store
+## 🧪 Testing the System
 
-1. **Browse Products**: View the product grid
-2. **Search**: Use the search box to filter products
-3. **Filter by Category**: Select categories from dropdown
-4. **Add to Cart**: Click "Add to Cart" on any product
-5. **View Cart**: Click the cart icon (🛒) in the header
-6. **Checkout**: Click "Proceed to Checkout" and fill in the form
-7. **Place Order**: Submit the order form
+1. **Add Videos**: Place `.mp4` files in `./videos/` directory
+2. **Add Config** (optional): Create `video-name.json` files:
+   ```json
+   {
+     "title": "Amazing Product Review",
+     "description": "Check out these products!",
+     "products": [
+       { "name": "Product 1", "url": "B08XXXXX" }
+     ],
+     "tags": ["review", "tech", "amazon"]
+   }
+   ```
+3. **Trigger Processing**: 
+   ```bash
+   curl -X POST http://localhost:3000/api/automation/trigger
+   ```
+4. **Check Status**:
+   ```bash
+   curl http://localhost:3000/api/automation/status
+   ```
 
 ## 🔧 Troubleshooting
 
-### Products Not Loading
-- Check browser console (F12) for errors
-- Verify API token is correct
-- Ensure shop ID matches your Printify shop
-- Check if ad blocker is blocking requests
+### Videos Not Uploading
+- Check YouTube API credentials in `.env`
+- Verify OAuth2 refresh token is valid
+- Ensure video format is supported (mp4, mov, avi, mkv, webm)
+- Check server logs for errors
 
-### CORS Errors
-- Use a local development server (not file://)
-- Consider implementing a backend proxy
-- Or use the demo mode for testing
+### Affiliate Links Not Working
+- Verify `AMAZON_AFFILIATE_TAG` is set correctly
+- Test link generation: `POST /api/affiliate/generate`
+- Check that product ASINs/URLs are valid
 
-### Order Creation Issues
-- Ensure products exist in your Printify shop
-- Verify products are published
-- Check API permissions in Printify dashboard
+### Scheduler Not Running
+- Ensure `AUTO_UPLOAD=true` in `.env`
+- Verify cron schedule format is correct
+- Check server logs for scheduler errors
+- Restart the server
+
+### Authentication Issues
+- Re-run `npm run setup:youtube` to refresh OAuth token
+- Check that redirect URI matches in Google Cloud Console
+- Verify YouTube Data API v3 is enabled
 
 ## 📚 Resources
 
-- [Printify API Documentation](https://developers.printify.com/)
-- [Printify Dashboard](https://printify.com/app/)
-- [API Token Management](https://printify.com/app/account/api)
+- [YouTube Data API Documentation](https://developers.google.com/youtube/v3)
+- [Google Cloud Console](https://console.cloud.google.com/)
+- [Amazon Associates Program](https://affiliate-program.amazon.com/)
 
 ## 🎉 You're All Set!
 
-Your store is ready to use. The configuration has been completed with your API credentials. Start the local server using any of the hosting options above and visit the URL in your browser.
+Your YouTube Amazon Affiliate Automation System is ready to use. Place your AI-generated videos in the `./videos/` directory and let the automation handle the rest!
 
-For questions or issues, refer to the main README.md or Printify's support documentation.
+For detailed usage and advanced features, refer to:
+- [README.md](README.md) - Main documentation
+- [YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md) - Complete automation guide
+- [AUTOMATION.md](AUTOMATION.md) - CI/CD and DevOps automation
