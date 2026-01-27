@@ -97,10 +97,12 @@ const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
 const PRINTIFY_API_BASE_URL = process.env.PRINTIFY_API_BASE_URL || 'https://api.printify.com/v1';
 
 // Validate environment variables
-const hasValidCredentials = PRINTIFY_API_TOKEN && 
-    PRINTIFY_SHOP_ID && 
+const hasValidCredentials = !!(
+    PRINTIFY_API_TOKEN &&
+    PRINTIFY_SHOP_ID &&
     PRINTIFY_API_TOKEN !== 'your_api_token_here' &&
-    PRINTIFY_SHOP_ID !== 'your_shop_id_here';
+    PRINTIFY_SHOP_ID !== 'your_shop_id_here'
+);
 
 if (!hasValidCredentials) {
     if (NODE_ENV === 'production') {
@@ -121,7 +123,9 @@ if (!hasValidCredentials) {
 async function makePrintifyRequest(endpoint, options = {}) {
     // Validate credentials before making API request
     if (!hasValidCredentials) {
-        throw new Error('Printify API credentials not configured. Please set PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in your .env file.');
+        throw new Error(
+            'Printify API credentials not configured. Please set PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in your .env file.'
+        );
     }
 
     const url = `${PRINTIFY_API_BASE_URL}${endpoint}`;
@@ -140,7 +144,9 @@ async function makePrintifyRequest(endpoint, options = {}) {
         const errorText = await response.text();
         // Provide helpful error messages for common issues
         if (response.status === 401) {
-            throw new Error(`Authentication failed. Please check your PRINTIFY_API_TOKEN in .env file. Status: ${response.status}`);
+            throw new Error(
+                `Authentication failed. Please check your PRINTIFY_API_TOKEN in .env file. Status: ${response.status}`
+            );
         }
         throw new Error(`Printify API error: ${response.status} - ${errorText}`);
     }
@@ -265,7 +271,8 @@ app.post(
             if (!hasValidCredentials) {
                 return res.status(503).json({
                     error: 'Printify API not configured',
-                    message: 'Cannot create orders - please configure PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file',
+                    message:
+                        'Cannot create orders - please configure PRINTIFY_API_TOKEN and PRINTIFY_SHOP_ID in .env file',
                 });
             }
 

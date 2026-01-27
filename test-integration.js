@@ -58,7 +58,8 @@ async function runTests() {
         await test('GET /api/products responds', async () => {
             const response = await fetch('http://localhost:3000/api/products');
             // Accept both success and error responses (may be in demo mode)
-            if (!response.ok && response.status !== 500) {
+            // 503 = API not configured, 500 = other errors
+            if (!response.ok && response.status !== 500 && response.status !== 503) {
                 throw new Error(`Unexpected HTTP ${response.status}`);
             }
         })
