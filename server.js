@@ -96,12 +96,16 @@ const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
 const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
 const PRINTIFY_API_BASE_URL = process.env.PRINTIFY_API_BASE_URL || 'https://api.printify.com/v1';
 
+// Placeholder values from .env.example
+const PLACEHOLDER_API_TOKEN = 'your_api_token_here';
+const PLACEHOLDER_SHOP_ID = 'your_shop_id_here';
+
 // Validate environment variables
 const hasValidCredentials = !!(
     PRINTIFY_API_TOKEN &&
     PRINTIFY_SHOP_ID &&
-    PRINTIFY_API_TOKEN !== 'your_api_token_here' &&
-    PRINTIFY_SHOP_ID !== 'your_shop_id_here'
+    PRINTIFY_API_TOKEN !== PLACEHOLDER_API_TOKEN &&
+    PRINTIFY_SHOP_ID !== PLACEHOLDER_SHOP_ID
 );
 
 if (!hasValidCredentials) {
