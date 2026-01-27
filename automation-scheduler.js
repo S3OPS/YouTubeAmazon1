@@ -20,18 +20,18 @@ class AutomationScheduler {
     async initialize() {
         try {
             await videoProcessor.initialize();
-            
+
             if (this.autoUpload) {
                 await youtubeApi.initialize();
             }
 
             logger.info('Automation scheduler initialized', {
                 autoUpload: this.autoUpload,
-                uploadSchedule: this.uploadSchedule
+                uploadSchedule: this.uploadSchedule,
             });
         } catch (error) {
             logger.error('Failed to initialize automation scheduler', {
-                error: error.message
+                error: error.message,
             });
             throw error;
         }
@@ -70,7 +70,7 @@ class AutomationScheduler {
         this.isRunning = true;
         logger.info('Automation scheduler started', {
             uploadSchedule: this.uploadSchedule,
-            jobCount: this.jobs.length
+            jobCount: this.jobs.length,
         });
     }
 
@@ -83,7 +83,7 @@ class AutomationScheduler {
             return;
         }
 
-        this.jobs.forEach(job => job.stop());
+        this.jobs.forEach((job) => job.stop());
         this.jobs = [];
         this.isRunning = false;
 
@@ -101,7 +101,7 @@ class AutomationScheduler {
                 processed: 0,
                 uploaded: 0,
                 errors: [],
-                videos: []
+                videos: [],
             };
 
             // Scan for videos
@@ -122,7 +122,7 @@ class AutomationScheduler {
 
                     // Load video configuration
                     const videoConfig = await this.loadVideoConfig(videoFile);
-                    
+
                     // Process video
                     const processedMetadata = await videoProcessor.processVideo(videoConfig);
                     results.processed++;
@@ -134,7 +134,7 @@ class AutomationScheduler {
                             title: processedMetadata.title,
                             description: processedMetadata.description,
                             tags: processedMetadata.tags,
-                            privacyStatus: process.env.DEFAULT_PRIVACY_STATUS || 'public'
+                            privacyStatus: process.env.DEFAULT_PRIVACY_STATUS || 'public',
                         });
 
                         if (uploadResult.success) {
@@ -147,29 +147,27 @@ class AutomationScheduler {
                             results.videos.push({
                                 file: videoFile,
                                 videoId: uploadResult.videoId,
-                                videoUrl: uploadResult.videoUrl
+                                videoUrl: uploadResult.videoUrl,
                             });
                         }
                     }
-
                 } catch (error) {
                     logger.error('Failed to process video', {
                         error: error.message,
-                        videoFile
+                        videoFile,
                     });
                     results.errors.push({
                         file: videoFile,
-                        error: error.message
+                        error: error.message,
                     });
                 }
             }
 
             logger.info('Video processing completed', results);
             return results;
-
         } catch (error) {
             logger.error('Failed to process and upload videos', {
-                error: error.message
+                error: error.message,
             });
             throw error;
         }
@@ -183,27 +181,27 @@ class AutomationScheduler {
     async loadVideoConfig(videoFile) {
         // Check for companion JSON config file
         const configPath = videoFile.replace(/\.[^.]+$/, '.json');
-        
+
         try {
             const fs = require('fs').promises;
             const configData = await fs.readFile(configPath, 'utf8');
             const config = JSON.parse(configData);
-            
+
             return {
                 filePath: videoFile,
-                ...config
+                ...config,
             };
         } catch {
             // No config file, use defaults
             const path = require('path');
             const filename = path.basename(videoFile, path.extname(videoFile));
-            
+
             return {
                 filePath: videoFile,
                 title: this.formatTitle(filename),
                 description: 'Check out these amazing products!',
                 products: [],
-                tags: ['products', 'review', 'recommendations']
+                tags: ['products', 'review', 'recommendations'],
             };
         }
     }
@@ -214,9 +212,7 @@ class AutomationScheduler {
      * @returns {string} Formatted title
      */
     formatTitle(filename) {
-        return filename
-            .replace(/[-_]/g, ' ')
-            .replace(/\b\w/g, c => c.toUpperCase());
+        return filename.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     }
 
     /**
@@ -237,7 +233,7 @@ class AutomationScheduler {
             running: this.isRunning,
             autoUpload: this.autoUpload,
             uploadSchedule: this.uploadSchedule,
-            activeJobs: this.jobs.length
+            activeJobs: this.jobs.length,
         };
     }
 }

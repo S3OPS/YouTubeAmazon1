@@ -1,35 +1,35 @@
 {
-  "title": "Best Home Office Setup Under $500",
-  "description": "Create the perfect home office without breaking the bank! These products will boost your productivity.",
-  "products": [
-    {
-      "name": "Adjustable Standing Desk",
-      "url": "B08BJGXK41"
-    },
-    {
-      "name": "Ergonomic Office Chair",
-      "url": "B07TJFKV12"
-    },
-    {
-      "name": "LED Desk Lamp with USB Charging",
-      "url": "B08KHC123"
-    },
-    {
-      "name": "Wireless Keyboard and Mouse Combo",
-      "url": "B08LG12345"
-    },
-    {
-      "name": "Monitor Arm Mount",
-      "url": "B00MIBN71I"
-    }
-  ],
-  "tags": [
-    "home office",
-    "work from home",
-    "office setup",
-    "productivity",
-    "desk setup",
-    "budget office",
-    "home office tour"
-  ]
+    "title": "Best Home Office Setup Under $500",
+    "description": "Create the perfect home office without breaking the bank! These products will boost your productivity.",
+    "products": [
+        {
+            "name": "Adjustable Standing Desk",
+            "url": "B08BJGXK41"
+        },
+        {
+            "name": "Ergonomic Office Chair",
+            "url": "B07TJFKV12"
+        },
+        {
+            "name": "LED Desk Lamp with USB Charging",
+            "url": "B08KHC123"
+        },
+        {
+            "name": "Wireless Keyboard and Mouse Combo",
+            "url": "B08LG12345"
+        },
+        {
+            "name": "Monitor Arm Mount",
+            "url": "B00MIBN71I"
+        }
+    ],
+    "tags": [
+        "home office",
+        "work from home",
+        "office setup",
+        "productivity",
+        "desk setup",
+        "budget office",
+        "home office tour"
+    ]
 }

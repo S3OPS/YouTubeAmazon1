@@ -19,29 +19,28 @@ class YouTubeAPI {
         try {
             const clientId = process.env.YOUTUBE_CLIENT_ID;
             const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-            const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
+            const redirectUri =
+                process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
             const refreshToken = process.env.YOUTUBE_REFRESH_TOKEN;
 
             if (!clientId || !clientSecret || !refreshToken) {
-                throw new Error('Missing required YouTube API credentials. Check YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, and YOUTUBE_REFRESH_TOKEN environment variables.');
+                throw new Error(
+                    'Missing required YouTube API credentials. Check YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, and YOUTUBE_REFRESH_TOKEN environment variables.'
+                );
             }
 
             // Create OAuth2 client
-            this.oauth2Client = new google.auth.OAuth2(
-                clientId,
-                clientSecret,
-                redirectUri
-            );
+            this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
             // Set refresh token
             this.oauth2Client.setCredentials({
-                refresh_token: refreshToken
+                refresh_token: refreshToken,
             });
 
             // Initialize YouTube API
             this.youtube = google.youtube({
                 version: 'v3',
-                auth: this.oauth2Client
+                auth: this.oauth2Client,
             });
 
             this.initialized = true;
@@ -74,7 +73,7 @@ class YouTubeAPI {
             description,
             tags = [],
             categoryId = '22', // People & Blogs
-            privacyStatus = 'public'
+            privacyStatus = 'public',
         } = options;
 
         try {
@@ -95,16 +94,16 @@ class YouTubeAPI {
                         tags,
                         categoryId,
                         defaultLanguage: 'en',
-                        defaultAudioLanguage: 'en'
+                        defaultAudioLanguage: 'en',
                     },
                     status: {
                         privacyStatus,
-                        selfDeclaredMadeForKids: false
-                    }
+                        selfDeclaredMadeForKids: false,
+                    },
                 },
                 media: {
-                    body: fs.createReadStream(filePath)
-                }
+                    body: fs.createReadStream(filePath),
+                },
             });
 
             const videoId = response.data.id;
@@ -113,19 +112,19 @@ class YouTubeAPI {
             logger.info('Video uploaded successfully', {
                 videoId,
                 videoUrl,
-                title
+                title,
             });
 
             return {
                 success: true,
                 videoId,
                 videoUrl,
-                data: response.data
+                data: response.data,
             };
         } catch (error) {
             logger.error('Failed to upload video', {
                 error: error.message,
-                title
+                title,
             });
             throw error;
         }
@@ -147,19 +146,19 @@ class YouTubeAPI {
                 part: 'snippet,status',
                 requestBody: {
                     id: videoId,
-                    ...updates
-                }
+                    ...updates,
+                },
             });
 
             logger.info('Video updated successfully', { videoId });
             return {
                 success: true,
-                data: response.data
+                data: response.data,
             };
         } catch (error) {
             logger.error('Failed to update video', {
                 error: error.message,
-                videoId
+                videoId,
             });
             throw error;
         }
@@ -178,7 +177,7 @@ class YouTubeAPI {
         try {
             const response = await this.youtube.videos.list({
                 part: 'snippet,status,statistics',
-                id: videoId
+                id: videoId,
             });
 
             if (!response.data.items || response.data.items.length === 0) {
@@ -187,12 +186,12 @@ class YouTubeAPI {
 
             return {
                 success: true,
-                data: response.data.items[0]
+                data: response.data.items[0],
             };
         } catch (error) {
             logger.error('Failed to get video', {
                 error: error.message,
-                videoId
+                videoId,
             });
             throw error;
         }
@@ -210,18 +209,18 @@ class YouTubeAPI {
 
         try {
             await this.youtube.videos.delete({
-                id: videoId
+                id: videoId,
             });
 
             logger.info('Video deleted successfully', { videoId });
             return {
                 success: true,
-                videoId
+                videoId,
             };
         } catch (error) {
             logger.error('Failed to delete video', {
                 error: error.message,
-                videoId
+                videoId,
             });
             throw error;
         }
@@ -235,24 +234,21 @@ class YouTubeAPI {
         if (!this.oauth2Client) {
             const clientId = process.env.YOUTUBE_CLIENT_ID;
             const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-            const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
+            const redirectUri =
+                process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
 
-            this.oauth2Client = new google.auth.OAuth2(
-                clientId,
-                clientSecret,
-                redirectUri
-            );
+            this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
         }
 
         const scopes = [
             'https://www.googleapis.com/auth/youtube.upload',
-            'https://www.googleapis.com/auth/youtube.force-ssl'
+            'https://www.googleapis.com/auth/youtube.force-ssl',
         ];
 
         return this.oauth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: scopes,
-            prompt: 'consent'
+            prompt: 'consent',
         });
     }
 
@@ -265,13 +261,10 @@ class YouTubeAPI {
         if (!this.oauth2Client) {
             const clientId = process.env.YOUTUBE_CLIENT_ID;
             const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-            const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
+            const redirectUri =
+                process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
 
-            this.oauth2Client = new google.auth.OAuth2(
-                clientId,
-                clientSecret,
-                redirectUri
-            );
+            this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
         }
 
         const { tokens } = await this.oauth2Client.getToken(code);
