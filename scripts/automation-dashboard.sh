@@ -70,11 +70,11 @@ echo ""
 
 # Automation Scripts Check
 echo -e "${BLUE}━━━ Automation Scripts ━━━${NC}"
-check_file "build-configure-test.sh" "Build-Configure-Test Script"
-check_file "monitor.sh" "Monitoring Script"
-check_file "setup.js" "Setup Wizard"
-check_file "automation-dashboard.sh" "Automation Dashboard"
-check_file "validate-automation.js" "Automation Validator"
+check_file "scripts/build-configure-test.sh" "Build-Configure-Test Script"
+check_file "scripts/monitor.sh" "Monitoring Script"
+check_file "scripts/setup.js" "Setup Wizard"
+check_file "scripts/automation-dashboard.sh" "Automation Dashboard"
+check_file "src/lib/validate-automation.js" "Automation Validator"
 echo ""
 
 # Pre-commit Hooks Check
@@ -91,8 +91,8 @@ echo ""
 
 # Test Infrastructure Check
 echo -e "${BLUE}━━━ Testing Infrastructure ━━━${NC}"
-check_file "test-security.js" "Security Tests"
-check_file "test-integration.js" "Integration Tests"
+check_file "tests/test-security.js" "Security Tests"
+check_file "tests/test-integration.js" "Integration Tests"
 
 if [ -f "package.json" ]; then
     if grep -q '"test":' package.json; then

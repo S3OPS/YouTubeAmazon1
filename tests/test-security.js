@@ -24,7 +24,7 @@ function test(description, condition) {
 }
 
 // Test 1: app.js should not contain API tokens
-const appJs = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
+const appJs = fs.readFileSync(path.join(__dirname, '../src/client/app.js'), 'utf8');
 test('app.js does not contain API token', !appJs.includes('eyJ0eXAiOiJKV1Qi'));
 test(
     'app.js does not contain hardcoded shopId in config',
@@ -32,7 +32,7 @@ test(
 );
 
 // Test 2: server.js should use environment variables
-const serverJs = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+const serverJs = fs.readFileSync(path.join(__dirname, '../src/server/server.js'), 'utf8');
 test(
     'server.js uses process.env.PRINTIFY_API_TOKEN',
     serverJs.includes('process.env.PRINTIFY_API_TOKEN')
@@ -43,15 +43,15 @@ test(
 );
 
 // Test 3: .env should be in .gitignore
-const gitignore = fs.readFileSync(path.join(__dirname, '.gitignore'), 'utf8');
+const gitignore = fs.readFileSync(path.join(__dirname, '../.gitignore'), 'utf8');
 test('.env is in .gitignore', gitignore.split('\n').includes('.env'));
 test('node_modules/ is in .gitignore', gitignore.split('\n').includes('node_modules/'));
 
 // Test 4: .env.example should exist
-test('.env.example exists', fs.existsSync(path.join(__dirname, '.env.example')));
+test('.env.example exists', fs.existsSync(path.join(__dirname, '../.env.example')));
 
 // Test 5: package.json should have required dependencies
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
 test('express is in dependencies', packageJson.dependencies.express !== undefined);
 test('dotenv is in dependencies', packageJson.dependencies.dotenv !== undefined);
 test('cors is in dependencies', packageJson.dependencies.cors !== undefined);

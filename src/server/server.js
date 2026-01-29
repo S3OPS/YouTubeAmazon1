@@ -9,7 +9,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const { randomUUID } = require('crypto');
-const logger = require('./logger');
+const logger = require('../lib/logger');
 
 // Load environment variables
 dotenv.config();
@@ -84,7 +84,7 @@ app.use(express.json());
 
 // Static files with caching
 app.use(
-    express.static(path.join(__dirname), {
+    express.static(path.join(__dirname, '../client'), {
         maxAge: NODE_ENV === 'production' ? '1d' : 0,
         etag: true,
         lastModified: true,
@@ -306,12 +306,12 @@ app.post(
 // YouTube Automation API Endpoints
 // ===========================================
 
-const youtubeApi = require('./youtube-api');
-const amazonAffiliate = require('./amazon-affiliate');
-const videoProcessor = require('./video-processor');
-const automationScheduler = require('./automation-scheduler');
-const dataCleanup = require('./data-cleanup');
-const videoGenerator = require('./video-generator');
+const youtubeApi = require('../lib/youtube-api');
+const amazonAffiliate = require('../lib/amazon-affiliate');
+const videoProcessor = require('../lib/video-processor');
+const automationScheduler = require('../lib/automation-scheduler');
+const dataCleanup = require('../lib/data-cleanup');
+const videoGenerator = require('../lib/video-generator');
 
 // Initialize automation on startup if enabled
 (async () => {

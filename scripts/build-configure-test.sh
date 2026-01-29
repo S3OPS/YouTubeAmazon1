@@ -99,7 +99,7 @@ build_step() {
     
     # Verify critical files exist
     print_status "Verifying critical project files..."
-    local required_files=("package.json" "server.js" "app.js")
+    local required_files=("package.json" "src/server/server.js" "src/client/app.js")
     for file in "${required_files[@]}"; do
         if [ ! -f "$file" ]; then
             print_error "CRITICAL: Required file $file is missing!"
