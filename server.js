@@ -550,7 +550,11 @@ app.get('/api/health', (req, res) => {
 // Scan for irrelevant data
 app.get('/api/cleanup/scan', async (req, res) => {
     try {
-        const daysOld = parseInt(req.query.daysOld) || 30;
+        // Validate and sanitize input
+        let daysOld = parseInt(req.query.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
         const includeOrphans = req.query.includeOrphans !== 'false';
         const includeStale = req.query.includeStale !== 'false';
         const includeTempFiles = req.query.includeTempFiles !== 'false';
@@ -606,18 +610,18 @@ app.get('/api/cleanup/status', async (req, res) => {
 // Archive irrelevant data
 app.post('/api/cleanup/archive', async (req, res) => {
     try {
-        const {
-            daysOld = 30,
-            includeOrphans = true,
-            includeStale = true,
-            includeTempFiles = true,
-        } = req.body;
+        // Validate and sanitize input
+        let daysOld = parseInt(req.body.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
+        const { includeOrphans = true, includeStale = true, includeTempFiles = true } = req.body;
 
         const results = await dataCleanup.cleanup('archive', {
             daysOld,
-            includeOrphans,
-            includeStale,
-            includeTempFiles,
+            includeOrphans: Boolean(includeOrphans),
+            includeStale: Boolean(includeStale),
+            includeTempFiles: Boolean(includeTempFiles),
         });
 
         res.json({
@@ -639,18 +643,18 @@ app.post('/api/cleanup/archive', async (req, res) => {
 // Erase irrelevant data
 app.post('/api/cleanup/erase', async (req, res) => {
     try {
-        const {
-            daysOld = 30,
-            includeOrphans = true,
-            includeStale = true,
-            includeTempFiles = true,
-        } = req.body;
+        // Validate and sanitize input
+        let daysOld = parseInt(req.body.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
+        const { includeOrphans = true, includeStale = true, includeTempFiles = true } = req.body;
 
         const results = await dataCleanup.cleanup('erase', {
             daysOld,
-            includeOrphans,
-            includeStale,
-            includeTempFiles,
+            includeOrphans: Boolean(includeOrphans),
+            includeStale: Boolean(includeStale),
+            includeTempFiles: Boolean(includeTempFiles),
         });
 
         res.json({

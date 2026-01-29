@@ -144,18 +144,25 @@ class DataCleanup {
                     if (!videoBaseNames.includes(baseName)) {
                         const filePath = path.join(this.videoDirectory, file);
                         const stats = await fs.stat(filePath);
-                        orphans.push({
-                            path: filePath,
-                            filename: file,
-                            size: stats.size,
-                            modified: stats.mtime,
-                            type: 'orphaned_config',
-                        });
+                        // Only include actual files, not directories
+                        if (stats.isFile()) {
+                            orphans.push({
+                                path: filePath,
+                                filename: file,
+                                size: stats.size,
+                                modified: stats.mtime,
+                                type: 'orphaned_config',
+                            });
+                        }
                     }
                 }
             }
         } catch (error) {
-            if (error.code !== 'ENOENT') {
+            if (error.code === 'ENOENT') {
+                logger.info('Video directory does not exist, skipping orphan scan', {
+                    directory: this.videoDirectory,
+                });
+            } else {
                 logger.error('Error finding orphaned configs', { error: error.message });
             }
         }
@@ -183,7 +190,8 @@ class DataCleanup {
                 const filePath = path.join(this.processedDirectory, file);
                 const stats = await fs.stat(filePath);
 
-                if (stats.mtime.getTime() < cutoffTime) {
+                // Only include actual files, not directories
+                if (stats.isFile() && stats.mtime.getTime() < cutoffTime) {
                     staleFiles.push({
                         path: filePath,
                         filename: file,
@@ -197,7 +205,11 @@ class DataCleanup {
                 }
             }
         } catch (error) {
-            if (error.code !== 'ENOENT') {
+            if (error.code === 'ENOENT') {
+                logger.info('Processed directory does not exist, skipping stale file scan', {
+                    directory: this.processedDirectory,
+                });
+            } else {
                 logger.error('Error finding stale processed files', { error: error.message });
             }
         }
@@ -206,13 +218,15 @@ class DataCleanup {
     }
 
     /**
-     * Find temporary files in common locations
+     * Find temporary files in application-specific directories
+     * Only searches video-related directories to avoid system or dependency files
      * @returns {Promise<Array>} Array of temp file info
      */
     async findTempFiles() {
         const tempFiles = [];
-        const tempPatterns = ['.tmp', '.temp', '.bak', '.swp', '.swo', '~'];
-        const searchDirs = ['.', this.videoDirectory, this.processedDirectory];
+        const tempPatterns = ['.tmp', '.temp', '.bak', '.swp', '.swo'];
+        // Only search application-specific directories, not root or system directories
+        const searchDirs = [this.videoDirectory, this.processedDirectory];
 
         for (const dir of searchDirs) {
             try {
@@ -220,9 +234,9 @@ class DataCleanup {
 
                 for (const file of files) {
                     const ext = path.extname(file).toLowerCase();
-                    const isTemp =
-                        tempPatterns.some((pattern) => file.endsWith(pattern)) ||
-                        tempPatterns.includes(ext);
+                    const isTemp = tempPatterns.some(
+                        (pattern) => ext === pattern || file.endsWith(pattern)
+                    );
 
                     if (isTemp && !this.isProtectedFile(file)) {
                         const filePath = path.join(dir, file);
@@ -243,7 +257,9 @@ class DataCleanup {
                     }
                 }
             } catch (error) {
-                if (error.code !== 'ENOENT') {
+                if (error.code === 'ENOENT') {
+                    logger.info('Directory does not exist, skipping temp file scan', { dir });
+                } else {
                     logger.error('Error finding temp files in directory', {
                         dir,
                         error: error.message,
@@ -258,7 +274,7 @@ class DataCleanup {
     /**
      * Archive irrelevant data files
      * @param {Array} files - Array of file objects to archive
-     * @returns {Promise<Object>} Archive results
+     * @returns {Promise<Object>} Archive results with archived count, failed count, and file details
      */
     async archiveData(files) {
         const results = {
@@ -283,19 +299,34 @@ class DataCleanup {
                     // Copy file to archive
                     await fs.copyFile(file.path, destPath);
 
-                    // Remove original
-                    await fs.unlink(file.path);
+                    // Verify copy succeeded before deleting original
+                    try {
+                        await fs.access(destPath);
+                        // Remove original only after verifying copy
+                        await fs.unlink(file.path);
 
-                    results.archived++;
-                    results.archivedFiles.push({
-                        original: file.path,
-                        archived: destPath,
-                    });
+                        results.archived++;
+                        results.archivedFiles.push({
+                            original: file.path,
+                            archived: destPath,
+                        });
 
-                    logger.info('File archived', {
-                        original: file.path,
-                        archived: destPath,
-                    });
+                        logger.info('File archived', {
+                            original: file.path,
+                            archived: destPath,
+                        });
+                    } catch (verifyError) {
+                        // Copy verification failed, don't delete original
+                        results.failed++;
+                        results.errors.push({
+                            file: file.path,
+                            error: 'Copy verification failed: ' + verifyError.message,
+                        });
+                        logger.error('Archive copy verification failed', {
+                            file: file.path,
+                            error: verifyError.message,
+                        });
+                    }
                 } catch (error) {
                     results.failed++;
                     results.errors.push({
@@ -309,16 +340,25 @@ class DataCleanup {
                 }
             }
 
-            // Create manifest file
-            const manifest = {
-                archivedAt: new Date().toISOString(),
-                files: results.archivedFiles,
-                totalFiles: results.archived,
-            };
-            await fs.writeFile(
-                path.join(archiveSubDir, 'manifest.json'),
-                JSON.stringify(manifest, null, 2)
-            );
+            // Create manifest file (only if we archived at least one file)
+            if (results.archived > 0) {
+                try {
+                    const manifest = {
+                        archivedAt: new Date().toISOString(),
+                        files: results.archivedFiles,
+                        totalFiles: results.archived,
+                    };
+                    await fs.writeFile(
+                        path.join(archiveSubDir, 'manifest.json'),
+                        JSON.stringify(manifest, null, 2)
+                    );
+                } catch (manifestError) {
+                    logger.error('Failed to create manifest file', {
+                        error: manifestError.message,
+                    });
+                    // Don't throw - files are already archived, manifest is supplementary
+                }
+            }
 
             logger.info('Archive operation completed', {
                 archived: results.archived,
@@ -427,10 +467,14 @@ class DataCleanup {
 
     /**
      * Format bytes to human readable string
-     * @param {number} bytes - Number of bytes
+     * @param {number} bytes - Number of bytes (must be a non-negative number)
      * @returns {string} Formatted string
      */
     formatBytes(bytes) {
+        // Handle invalid inputs
+        if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) {
+            return '0 Bytes';
+        }
         if (bytes === 0) {
             return '0 Bytes';
         }
