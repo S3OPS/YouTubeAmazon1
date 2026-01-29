@@ -310,6 +310,7 @@ const youtubeApi = require('./youtube-api');
 const amazonAffiliate = require('./amazon-affiliate');
 const videoProcessor = require('./video-processor');
 const automationScheduler = require('./automation-scheduler');
+const dataCleanup = require('./data-cleanup');
 
 // Initialize automation on startup if enabled
 (async () => {
@@ -540,6 +541,136 @@ app.get('/api/health', (req, res) => {
         uptime: process.uptime(),
         environment: NODE_ENV,
     });
+});
+
+// ===========================================
+// Data Cleanup API Endpoints
+// ===========================================
+
+// Scan for irrelevant data
+app.get('/api/cleanup/scan', async (req, res) => {
+    try {
+        // Validate and sanitize input
+        let daysOld = parseInt(req.query.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
+        const includeOrphans = req.query.includeOrphans !== 'false';
+        const includeStale = req.query.includeStale !== 'false';
+        const includeTempFiles = req.query.includeTempFiles !== 'false';
+
+        const results = await dataCleanup.scanForIrrelevantData({
+            daysOld,
+            includeOrphans,
+            includeStale,
+            includeTempFiles,
+        });
+
+        res.json({
+            success: true,
+            ...results,
+            totalFiles:
+                results.orphanedConfigs.length +
+                results.staleProcessedFiles.length +
+                results.tempFiles.length,
+            totalSizeFormatted: dataCleanup.formatBytes(results.totalSize),
+        });
+    } catch (error) {
+        logger.error('Error scanning for irrelevant data', {
+            requestId: req.id,
+            error: error.message,
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// Get cleanup status
+app.get('/api/cleanup/status', async (req, res) => {
+    try {
+        const status = await dataCleanup.getStatus();
+        res.json({
+            success: true,
+            ...status,
+        });
+    } catch (error) {
+        logger.error('Error getting cleanup status', {
+            requestId: req.id,
+            error: error.message,
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// Archive irrelevant data
+app.post('/api/cleanup/archive', async (req, res) => {
+    try {
+        // Validate and sanitize input
+        let daysOld = parseInt(req.body.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
+        const { includeOrphans = true, includeStale = true, includeTempFiles = true } = req.body;
+
+        const results = await dataCleanup.cleanup('archive', {
+            daysOld,
+            includeOrphans: Boolean(includeOrphans),
+            includeStale: Boolean(includeStale),
+            includeTempFiles: Boolean(includeTempFiles),
+        });
+
+        res.json({
+            success: true,
+            ...results,
+        });
+    } catch (error) {
+        logger.error('Error archiving data', {
+            requestId: req.id,
+            error: error.message,
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// Erase irrelevant data
+app.post('/api/cleanup/erase', async (req, res) => {
+    try {
+        // Validate and sanitize input
+        let daysOld = parseInt(req.body.daysOld) || 30;
+        // Clamp daysOld to reasonable range (1-365)
+        daysOld = Math.max(1, Math.min(365, daysOld));
+
+        const { includeOrphans = true, includeStale = true, includeTempFiles = true } = req.body;
+
+        const results = await dataCleanup.cleanup('erase', {
+            daysOld,
+            includeOrphans: Boolean(includeOrphans),
+            includeStale: Boolean(includeStale),
+            includeTempFiles: Boolean(includeTempFiles),
+        });
+
+        res.json({
+            success: true,
+            ...results,
+        });
+    } catch (error) {
+        logger.error('Error erasing data', {
+            requestId: req.id,
+            error: error.message,
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
 });
 
 // Serve the frontend

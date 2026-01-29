@@ -25,7 +25,10 @@
         "ci": "npm run lint && npm run format:check && npm test",
         "build-configure-test": "bash build-configure-test.sh",
         "automation:dashboard": "bash automation-dashboard.sh",
-        "automation:validate": "node validate-automation.js"
+        "automation:validate": "node validate-automation.js",
+        "cleanup:scan": "node -e \"require('./data-cleanup').scanForIrrelevantData().then(r => console.log(JSON.stringify(r, null, 2)))\"",
+        "cleanup:archive": "node -e \"require('./data-cleanup').cleanup('archive').then(r => console.log(JSON.stringify(r, null, 2)))\"",
+        "cleanup:erase": "node -e \"require('./data-cleanup').cleanup('erase').then(r => console.log(JSON.stringify(r, null, 2)))\""
     },
     "keywords": [
         "youtube",

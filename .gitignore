@@ -39,3 +39,5 @@ videos/processed/*.json
 !videos/example-*.json
 !videos/README.md
 
+# Archive directory (cleanup archives)
+archive/
