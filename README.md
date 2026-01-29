@@ -36,53 +36,43 @@ This application provides a complete automation solution for adding Amazon affil
 - ✅ **Product Linking**: Automatic product-to-description mapping
 - ✅ **SEO Optimization**: Smart tag enhancement for discoverability
 
-## 🚀 Quick Start - YouTube Automation
+## 🚀 Quick Start
 
-### Prerequisites
+### One-Command Setup (Automated)
 
-1. **Node.js** (v14 or higher)
-2. **YouTube Account** with API access enabled
-3. **Amazon Associates Account** with active affiliate tag
-4. **Google Cloud Project** with YouTube Data API v3 enabled
-
-### Setup (3 Easy Steps)
-
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Run Setup Wizard**
-   ```bash
-   npm run setup:youtube
-   ```
-   
-   The wizard will guide you through:
-   - YouTube API credentials
-   - Amazon affiliate configuration
-   - Automation schedule
-   - Directory setup
-
-3. **Start the Server**
-   ```bash
-   npm start
-   ```
-
-### Quick Configuration
-
-```env
-# YouTube API
-YOUTUBE_CLIENT_ID=your_client_id
-YOUTUBE_CLIENT_SECRET=your_client_secret
-YOUTUBE_REFRESH_TOKEN=your_refresh_token
-
-# Amazon Affiliate
-AMAZON_AFFILIATE_TAG=your_tag_here
-
-# Automation
-AUTO_UPLOAD=true
-UPLOAD_SCHEDULE=0 10 * * *  # Daily at 10 AM
+```bash
+npm run build-configure-test
 ```
+
+This automated workflow will install, configure, and test your system in ~3-5 minutes.
+
+### Manual Setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run setup wizard
+npm run setup:youtube
+
+# 3. Start the server
+npm start
+```
+
+### 📖 Complete Installation Guide
+
+For detailed step-by-step instructions including API credential setup, configuration options, deployment, and troubleshooting, see:
+
+**➡️ [INSTALLATION.md](INSTALLATION.md) - Complete Installation & Setup Guide**
+
+This comprehensive guide covers:
+- Prerequisites and system requirements
+- Getting YouTube API credentials
+- Getting Amazon Associates credentials
+- Configuration options
+- Deployment to various platforms
+- Troubleshooting common issues
+- Testing and verification
 
 ## 📖 Usage
 
@@ -178,10 +168,11 @@ DEFAULT_PRIVACY_STATUS=public   # public, unlisted, or private
 
 ## 📚 Documentation
 
+- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation and setup guide
 - **[YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md)** - Complete YouTube automation guide
 - **[AUTOMATION.md](AUTOMATION.md)** - CI/CD and DevOps automation
-- **[SETUP.md](SETUP.md)** - Detailed setup instructions
-- **[SECURITY.md](SECURITY.md)** - Security guidelines
+- **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Extended troubleshooting guide
 
 ## 🎯 Example Workflows
 

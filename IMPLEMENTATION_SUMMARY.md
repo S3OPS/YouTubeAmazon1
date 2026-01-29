@@ -66,11 +66,13 @@ This repository has been successfully transformed from a Printify dropshipping s
    - Workflow examples
    - Troubleshooting
 
-3. **QUICKSTART_YOUTUBE.md** - Quick Start Guide
-   - 5-minute setup instructions
-   - Common usage patterns
-   - Example configurations
-   - Command reference
+3. **INSTALLATION.md** - Installation & Setup Guide
+   - Prerequisites and requirements
+   - Step-by-step setup instructions
+   - API credential acquisition
+   - Configuration details
+   - Deployment options
+   - Comprehensive troubleshooting
 
 4. **videos/README.md** - Video Configuration Guide
    - Configuration file format
@@ -327,7 +329,7 @@ Transformed a Printify dropshipping store into a complete YouTube automation pla
 ## 📚 Resources
 
 - **YOUTUBE_AUTOMATION.md** - Complete guide
-- **QUICKSTART_YOUTUBE.md** - Quick setup
+- **INSTALLATION.md** - Installation and setup
 - **videos/README.md** - Video configuration
 - **.env.example** - Configuration reference
 - **README.md** - Overview

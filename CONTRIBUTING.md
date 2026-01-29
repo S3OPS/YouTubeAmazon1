@@ -291,8 +291,8 @@ npm run docker:build
 ## 📚 Resources
 
 - **Documentation**
+  - [INSTALLATION.md](INSTALLATION.md) - Complete installation and setup guide
   - [AUTOMATION.md](AUTOMATION.md) - Full automation guide
-  - [SETUP.md](SETUP.md) - Setup instructions
   - [SECURITY.md](SECURITY.md) - Security guidelines
   - [README.md](README.md) - Project overview
   - [YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md) - YouTube automation guide
