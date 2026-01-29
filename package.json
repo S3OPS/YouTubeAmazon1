@@ -15,6 +15,7 @@
         "format:check": "prettier --check .",
         "setup": "node setup.js",
         "setup:youtube": "node setup-youtube.js",
+        "setup:video-generation": "bash setup-video-generation.sh",
         "prepare": "(node -e \"try{require.resolve('husky')}catch{process.exit(1)}\" && husky) || true",
         "monitor": "bash monitor.sh",
         "docker:build": "docker build -t youtube-automation:latest .",
