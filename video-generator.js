@@ -51,7 +51,7 @@ class VideoGenerator {
             await execAsync('ffmpeg -version');
             logger.info('FFmpeg is available');
             return true;
-        } catch (error) {
+        } catch {
             logger.warn('FFmpeg is not installed. Video generation will use fallback method.');
             return false;
         }
@@ -68,7 +68,7 @@ class VideoGenerator {
      */
     async generateVideo(config) {
         try {
-            const { title, description, products = [], tags = [] } = config;
+            const { title, products = [] } = config;
 
             logger.info('Starting video generation', { title, productCount: products.length });
 
@@ -188,7 +188,7 @@ class VideoGenerator {
                 "${imagePath}"`;
             
             await execAsync(command);
-        } catch (error) {
+        } catch {
             // Fallback to FFmpeg drawtext filter
             const command = `ffmpeg -f lavfi -i color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=1 \
                 -vf "drawtext=text='${slide.text}':fontcolor=white:fontsize=72:x=(w-text_w)/2:y=(h-text_h)/2" \
@@ -294,11 +294,15 @@ Tags: ${config.tags ? config.tags.join(', ') : 'N/A'}
             if ((currentLine + word).length <= width) {
                 currentLine += (currentLine ? ' ' : '') + word;
             } else {
-                if (currentLine) lines.push(currentLine);
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
                 currentLine = word;
             }
         }
-        if (currentLine) lines.push(currentLine);
+        if (currentLine) {
+            lines.push(currentLine);
+        }
 
         return lines.join('\\n');
     }
