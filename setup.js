@@ -143,8 +143,7 @@ function printNextSteps(isConfigured) {
     console.log('');
     print('📚 For more information, see:', 'cyan');
     print('   • README.md - Full documentation', 'reset');
-    print('   • SETUP.md - Detailed setup guide', 'reset');
-    print('   • QUICKSTART.md - Quick reference', 'reset');
+    print('   • INSTALLATION.md - Complete installation guide', 'reset');
     console.log('');
 }
 

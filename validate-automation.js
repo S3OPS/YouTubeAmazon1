@@ -286,7 +286,7 @@ console.log(`${colors.blue}━━━ Documentation ━━━${colors.reset}`);
 
 checkFile('README.md', 'README documentation');
 checkFile('AUTOMATION.md', 'Automation guide');
-checkFile('SETUP.md', 'Setup instructions', false);
+checkFile('INSTALLATION.md', 'Installation and setup guide', false);
 checkFile('SECURITY.md', 'Security documentation', false);
 checkFile('CONTRIBUTING.md', 'Contributing guide', false);
 

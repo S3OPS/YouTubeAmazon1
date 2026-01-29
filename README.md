@@ -274,8 +274,8 @@ Feel free to fork and customize for your needs!
 
 ## 📚 Documentation
 
+- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation and setup guide
 - **[AUTOMATION.md](AUTOMATION.md)** - Complete guide to using automation features
-- **[SETUP.md](SETUP.md)** - Detailed setup and deployment instructions
 - **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
 
