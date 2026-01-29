@@ -194,7 +194,7 @@ If you continue to experience issues:
 1. Check the server logs for detailed error messages
 2. Verify your YouTube API credentials in [Google Cloud Console](https://console.cloud.google.com/)
 3. Ensure your `.env` file is in the project root directory
-4. Review the [SETUP.md](SETUP.md) guide for detailed setup instructions
+4. Review the [INSTALLATION.md](INSTALLATION.md) guide for detailed setup instructions
 5. Check the [YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md) for automation details
 6. Review the [README.md](README.md) for general information
 
