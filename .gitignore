@@ -27,6 +27,11 @@ logs/
 *.tmp
 *.pid
 
+# Video generation temporary files
+temp/
+*.png
+*.wav
+
 # Videos and processed files (exclude actual videos, keep configs)
 videos/*.mp4
 videos/*.mov

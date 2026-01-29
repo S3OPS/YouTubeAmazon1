@@ -1,10 +1,18 @@
 # YouTube Amazon Affiliate Automation System
 
-**100% Fully Automated System for AI-Generated Video Content**
+**100% Fully Automated System with Automatic Video Generation**
 
-This application provides a complete automation solution for adding Amazon affiliate links to AI-generated short videos and automatically posting them to YouTube. Built with enterprise-grade security, monitoring, and automation features.
+This application provides a complete automation solution that **automatically generates videos** from product configurations, adds Amazon affiliate links, and posts them to YouTube. Built with enterprise-grade security, monitoring, and automation features using **free, open-source tools**.
 
 ## 🎬 Primary Features - YouTube Automation
+
+### Video Generation 🎥 (NEW!)
+- ✅ **Automatic Video Creation**: Generate videos from JSON configurations
+- ✅ **Text-to-Speech Narration**: Optional voice narration using free tools
+- ✅ **Slide-based Videos**: Create product showcase videos automatically
+- ✅ **Customizable Templates**: Configure video dimensions, duration, and styling
+- ✅ **Batch Generation**: Create multiple videos from configurations
+- ✅ **Free Tools**: Uses FFmpeg, ImageMagick, and espeak (all free)
 
 ### Core Automation 🤖
 - 🎥 **Automatic Video Processing**: Scans directory for AI-generated videos
@@ -52,10 +60,13 @@ This automated workflow will install, configure, and test your system in ~3-5 mi
 # 1. Install dependencies
 npm install
 
-# 2. Run setup wizard
+# 2. Setup video generation (installs FFmpeg and other tools)
+npm run setup:video-generation
+
+# 3. Run setup wizard
 npm run setup:youtube
 
-# 3. Start the server
+# 4. Start the server
 npm start
 ```
 
@@ -76,25 +87,47 @@ This comprehensive guide covers:
 
 ## 📖 Usage
 
-### Automated Workflow (Recommended)
+### Automated Workflow with Video Generation (NEW!)
+
+1. **Create product configs** in `./videos/` directory:
+   ```json
+   {
+     "title": "Top 5 Gaming Accessories 2024",
+     "description": "Best gaming gear for serious gamers!",
+     "products": [
+       { "name": "Gaming Mouse RGB", "url": "B08XXXXX" },
+       { "name": "Mechanical Keyboard", "url": "B08YYYYY" }
+     ],
+     "tags": ["gaming", "review", "tech"]
+   }
+   ```
+
+2. **Generate videos automatically**:
+   ```bash
+   # Generate videos from all JSON configs
+   curl -X POST http://localhost:3000/api/videos/generate-from-configs
+   ```
+
+3. **Let it run** - Videos are automatically processed and uploaded per schedule!
+
+### Alternative: Use Pre-existing Videos
 
 1. **Place videos** in `./videos/` directory
 2. **Create config** files (optional): `video-name.json`
-   ```json
-   {
-     "title": "Amazing Product Review",
-     "description": "Check out these products!",
-     "products": [
-       { "name": "Product 1", "url": "B08XXXXX" }
-     ],
-     "tags": ["review", "tech", "amazon"]
-   }
-   ```
-3. **Let it run** - Videos are automatically processed and uploaded per schedule!
+3. **Let automation run** - Videos are automatically processed and uploaded!
 
-### Manual Upload
+### Manual Operations
 
 ```bash
+# Generate a single video
+curl -X POST http://localhost:3000/api/videos/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My Product Review",
+    "products": [{"name": "Product", "url": "B08XXXXX"}],
+    "tags": ["review", "tech"]
+  }'
+
 # Trigger processing now
 curl -X POST http://localhost:3000/api/automation/trigger
 
@@ -109,6 +142,11 @@ curl -X POST http://localhost:3000/api/youtube/upload \
 ```
 
 ## 📊 API Endpoints
+
+### Video Generation (NEW!)
+- `POST /api/videos/generate` - Generate video from configuration
+- `POST /api/videos/generate-from-configs` - Generate videos from all JSON files
+- `POST /api/videos/generate-with-narration` - Generate video with voice narration
 
 ### YouTube Automation
 - `GET /api/automation/status` - Get automation status
@@ -139,16 +177,35 @@ curl -X POST http://localhost:3000/api/youtube/upload \
 ├── automation-scheduler.js     # Cron-based scheduler
 ├── data-cleanup.js             # Data cleanup utility
 ├── server.js                   # Express API server
+├── video-generator.js          # Video generation engine (NEW!)
 ├── setup-youtube.js            # Setup wizard
+├── setup-video-generation.sh   # Video generation setup (NEW!)
 ├── videos/                     # Video directory
 │   ├── *.mp4                   # AI-generated videos
 │   ├── *.json                  # Video configs
 │   └── processed/              # Metadata storage
+├── temp/                       # Temporary files for video generation (NEW!)
 ├── archive/                    # Archived irrelevant data
+├── VIDEO_GENERATION.md         # Video generation guide (NEW!)
 └── YOUTUBE_AUTOMATION.md       # Detailed documentation
 ```
 
 ## ⚙️ Configuration
+
+### Video Generation Settings
+
+```env
+# Video dimensions
+VIDEO_WIDTH=1920          # Width in pixels (default: 1920)
+VIDEO_HEIGHT=1080         # Height in pixels (default: 1080)
+
+# Video settings
+VIDEO_FPS=30              # Frames per second (default: 30)
+SLIDE_DURATION=3          # Seconds per slide (default: 3)
+
+# Directories
+TEMP_DIRECTORY=./temp     # Temporary files directory
+```
 
 ### Upload Schedule (Cron Format)
 
@@ -176,6 +233,7 @@ DEFAULT_PRIVACY_STATUS=public   # public, unlisted, or private
 
 ## 📚 Documentation
 
+- **[VIDEO_GENERATION.md](VIDEO_GENERATION.md)** - Complete video generation guide (NEW!)
 - **[INSTALLATION.md](INSTALLATION.md)** - Complete installation and setup guide
 - **[YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md)** - Complete YouTube automation guide
 - **[AUTOMATION.md](AUTOMATION.md)** - CI/CD and DevOps automation
@@ -184,13 +242,39 @@ DEFAULT_PRIVACY_STATUS=public   # public, unlisted, or private
 
 ## 🎯 Example Workflows
 
+### Complete Automated Workflow (with Video Generation)
+```bash
+# 1. Create product configuration
+cat > videos/gaming-products.json << 'EOF'
+{
+  "title": "Top 5 Gaming Accessories 2024",
+  "description": "Best gaming gear!",
+  "products": [
+    {"name": "Gaming Mouse", "url": "B08XXXXX"},
+    {"name": "Mechanical Keyboard", "url": "B08YYYYY"}
+  ],
+  "tags": ["gaming", "tech", "review"]
+}
+EOF
+
+# 2. Generate video
+curl -X POST http://localhost:3000/api/videos/generate-from-configs
+
+# 3. Videos are automatically uploaded per schedule (or trigger now)
+curl -X POST http://localhost:3000/api/automation/trigger
+```
+
 ### Daily Automated Uploads
 ```bash
 # 1. Configure schedule
 echo "AUTO_UPLOAD=true" >> .env
 echo "UPLOAD_SCHEDULE=0 10 * * *" >> .env
 
-# 2. Add videos to directory
+# 2. Create video configs OR add videos to directory
+# Option A: Generate videos from configs
+curl -X POST http://localhost:3000/api/videos/generate-from-configs
+
+# Option B: Add pre-made videos
 cp my-videos/*.mp4 videos/
 
 # 3. Done! Videos upload automatically at 10 AM

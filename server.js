@@ -311,6 +311,7 @@ const amazonAffiliate = require('./amazon-affiliate');
 const videoProcessor = require('./video-processor');
 const automationScheduler = require('./automation-scheduler');
 const dataCleanup = require('./data-cleanup');
+const videoGenerator = require('./video-generator');
 
 // Initialize automation on startup if enabled
 (async () => {
@@ -530,6 +531,116 @@ app.get('/api/videos/scan', async (req, res) => {
         });
     }
 });
+
+// ===========================================
+// Video Generation API Endpoints
+// ===========================================
+
+// Generate video from configuration
+app.post(
+    '/api/videos/generate',
+    [
+        body('title').notEmpty().trim().withMessage('Video title is required'),
+        body('description').optional().trim(),
+        body('products').optional().isArray().withMessage('Products must be an array'),
+        body('tags').optional().isArray().withMessage('Tags must be an array'),
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    errors: errors.array(),
+                });
+            }
+
+            await videoGenerator.initialize();
+            const videoPath = await videoGenerator.generateVideo(req.body);
+
+            res.json({
+                success: true,
+                videoPath,
+                message: 'Video generated successfully',
+            });
+        } catch (error) {
+            logger.error('Error generating video', {
+                requestId: req.id,
+                error: error.message,
+            });
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    }
+);
+
+// Generate videos from all JSON configurations
+app.post('/api/videos/generate-from-configs', async (req, res) => {
+    try {
+        await videoGenerator.initialize();
+        const generatedVideos = await videoGenerator.generateFromConfigs();
+
+        res.json({
+            success: true,
+            count: generatedVideos.length,
+            videos: generatedVideos,
+            message: `Generated ${generatedVideos.length} video(s) successfully`,
+        });
+    } catch (error) {
+        logger.error('Error generating videos from configs', {
+            requestId: req.id,
+            error: error.message,
+        });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// Generate video with narration
+app.post(
+    '/api/videos/generate-with-narration',
+    [
+        body('title').notEmpty().trim().withMessage('Video title is required'),
+        body('script').notEmpty().trim().withMessage('Narration script is required'),
+        body('description').optional().trim(),
+        body('products').optional().isArray(),
+        body('tags').optional().isArray(),
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    errors: errors.array(),
+                });
+            }
+
+            await videoGenerator.initialize();
+            const { script, ...config } = req.body;
+            const videoPath = await videoGenerator.generateWithNarration(config, script);
+
+            res.json({
+                success: true,
+                videoPath,
+                message: 'Video with narration generated successfully',
+            });
+        } catch (error) {
+            logger.error('Error generating video with narration', {
+                requestId: req.id,
+                error: error.message,
+            });
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    }
+);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -114,7 +114,40 @@ This will install all required Node.js packages including:
 - Helmet.js - Security headers
 - And more...
 
-### Step 3: Create Environment File
+### Step 3: Install Video Generation Tools (Optional but Recommended)
+
+To enable automatic video generation from product configurations, install the required tools:
+
+```bash
+npm run setup:video-generation
+```
+
+This will install:
+- **FFmpeg** - Video composition and encoding (required for video generation)
+- **ImageMagick** - High-quality text rendering (optional, improves quality)
+- **espeak** - Text-to-speech narration (optional, for voice narration)
+
+**Manual Installation (if automated setup fails):**
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y ffmpeg imagemagick espeak
+```
+
+**macOS:**
+```bash
+brew install ffmpeg imagemagick espeak
+```
+
+**Windows:**
+- FFmpeg: https://ffmpeg.org/download.html
+- ImageMagick: https://imagemagick.org/script/download.php
+- espeak: http://espeak.sourceforge.net/
+
+**Skip this step** if you plan to use pre-made videos instead of generating them automatically.
+
+### Step 4: Create Environment File
 
 Copy the example environment file:
 
@@ -160,6 +193,25 @@ PROCESSED_VIDEO_DIRECTORY=./videos/processed
 ```
 
 **Purpose:** Defines where to find videos and where to store processing metadata.
+
+#### Video Generation Configuration (NEW!)
+
+```env
+TEMP_DIRECTORY=./temp
+VIDEO_WIDTH=1920
+VIDEO_HEIGHT=1080
+VIDEO_FPS=30
+SLIDE_DURATION=3
+```
+
+**Purpose:** Controls automatic video generation settings.
+
+**Settings Explained:**
+- `VIDEO_WIDTH/HEIGHT` - Video resolution (1920x1080 = 1080p, 1280x720 = 720p)
+- `VIDEO_FPS` - Frame rate (24-60 fps, 30 is standard)
+- `SLIDE_DURATION` - How many seconds each product slide shows (2-5 seconds)
+
+**Skip this section** if not using video generation.
 
 #### Automation Configuration
 
