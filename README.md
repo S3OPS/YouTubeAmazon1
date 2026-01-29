@@ -74,7 +74,7 @@ npm start
 
 For detailed step-by-step instructions including API credential setup, configuration options, deployment, and troubleshooting, see:
 
-**➡️ [INSTALLATION.md](INSTALLATION.md) - Complete Installation & Setup Guide**
+**➡️ [docs/INSTALLATION.md](docs/INSTALLATION.md) - Complete Installation & Setup Guide**
 
 This comprehensive guide covers:
 - Prerequisites and system requirements
@@ -233,12 +233,12 @@ DEFAULT_PRIVACY_STATUS=public   # public, unlisted, or private
 
 ## 📚 Documentation
 
-- **[VIDEO_GENERATION.md](VIDEO_GENERATION.md)** - Complete video generation guide (NEW!)
-- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation and setup guide
-- **[YOUTUBE_AUTOMATION.md](YOUTUBE_AUTOMATION.md)** - Complete YouTube automation guide
-- **[AUTOMATION.md](AUTOMATION.md)** - CI/CD and DevOps automation
-- **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
-- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Extended troubleshooting guide
+- **[docs/VIDEO_GENERATION.md](docs/VIDEO_GENERATION.md)** - Complete video generation guide (NEW!)
+- **[docs/INSTALLATION.md](docs/INSTALLATION.md)** - Complete installation and setup guide
+- **[docs/YOUTUBE_AUTOMATION.md](docs/YOUTUBE_AUTOMATION.md)** - Complete YouTube automation guide
+- **[docs/AUTOMATION.md](docs/AUTOMATION.md)** - CI/CD and DevOps automation
+- **[docs/SECURITY.md](docs/SECURITY.md)** - Security guidelines and best practices
+- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Extended troubleshooting guide
 
 ## 🎯 Example Workflows
 
@@ -356,6 +356,66 @@ docker run -d -p 3000:3000 \
 - Automatic cleanup of old files
 - Request caching and optimization
 
+## 📂 Repository Structure
+
+The repository is organized into a clean, modular structure:
+
+```
+YouTubeAmazon1/
+├── src/                      # Source code
+│   ├── server/              # Backend server
+│   │   └── server.js        # Main Express server
+│   ├── client/              # Frontend files
+│   │   ├── index.html       # Web interface
+│   │   ├── app.js           # Client-side JavaScript
+│   │   └── styles.css       # Styles
+│   └── lib/                 # Shared libraries & modules
+│       ├── youtube-api.js   # YouTube API integration
+│       ├── amazon-affiliate.js  # Amazon affiliate links
+│       ├── video-processor.js   # Video processing
+│       ├── video-generator.js   # Video generation
+│       ├── automation-scheduler.js  # Cron scheduling
+│       ├── data-cleanup.js      # Data management
+│       ├── validate-automation.js  # Validation utilities
+│       └── logger.js        # Logging utility
+├── scripts/                 # Automation & setup scripts
+│   ├── setup.js             # Setup wizard
+│   ├── setup-youtube.js     # YouTube setup
+│   ├── setup-video-generation.sh  # Video tools setup
+│   ├── build-configure-test.sh    # CI/CD workflow
+│   ├── automation-dashboard.sh    # Status dashboard
+│   └── monitor.sh           # Monitoring script
+├── tests/                   # Test files
+│   ├── test-security.js     # Security tests
+│   └── test-integration.js  # Integration tests
+├── docs/                    # Documentation
+│   ├── INSTALLATION.md      # Installation guide
+│   ├── AUTOMATION.md        # Automation guide
+│   ├── VIDEO_GENERATION.md  # Video generation guide
+│   ├── YOUTUBE_AUTOMATION.md  # YouTube automation guide
+│   ├── SECURITY.md          # Security guidelines
+│   ├── TROUBLESHOOTING.md   # Troubleshooting guide
+│   └── ...                  # Other docs
+├── videos/                  # Video files & configs
+│   ├── example-*.json       # Example configurations
+│   └── processed/           # Processed metadata
+├── .github/                 # GitHub workflows & config
+├── package.json             # Node.js dependencies
+├── Dockerfile               # Docker configuration
+├── docker-compose.yml       # Docker Compose setup
+└── README.md                # This file
+```
+
+### Key Directories
+
+- **`src/server/`** - Backend API server and routes
+- **`src/client/`** - Frontend web interface
+- **`src/lib/`** - Reusable modules and business logic
+- **`scripts/`** - Automation scripts and setup wizards
+- **`tests/`** - Automated tests for security and integration
+- **`docs/`** - Comprehensive documentation
+- **`videos/`** - Video files and configuration JSON files
+
 ## 🤝 Contributing
 
 Feel free to fork and customize for your needs!
@@ -366,10 +426,10 @@ Feel free to fork and customize for your needs!
 
 ## 📚 Documentation
 
-- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation and setup guide
-- **[AUTOMATION.md](AUTOMATION.md)** - Complete guide to using automation features
-- **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+- **[docs/INSTALLATION.md](docs/INSTALLATION.md)** - Complete installation and setup guide
+- **[docs/AUTOMATION.md](docs/AUTOMATION.md)** - Complete guide to using automation features
+- **[docs/SECURITY.md](docs/SECURITY.md)** - Security guidelines and best practices
+- **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Version history and changes
 
 ## 🛠️ Available Commands
 
