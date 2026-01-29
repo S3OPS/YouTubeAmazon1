@@ -83,7 +83,7 @@ class VideoGenerator {
 
             // Generate video using available method
             const ffmpegAvailable = await this.checkFFmpeg();
-            
+
             if (ffmpegAvailable) {
                 await this.generateWithFFmpeg(config, videoPath);
             } else {
@@ -186,14 +186,14 @@ class VideoGenerator {
                 -font Arial -pointsize 72 -fill white \
                 -gravity center -annotate +0+0 "${text}" \
                 "${imagePath}"`;
-            
+
             await execAsync(command);
         } catch {
             // Fallback to FFmpeg drawtext filter
             const command = `ffmpeg -f lavfi -i color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=1 \
                 -vf "drawtext=text='${slide.text}':fontcolor=white:fontsize=72:x=(w-text_w)/2:y=(h-text_h)/2" \
                 -frames:v 1 "${imagePath}" -y`;
-            
+
             await execAsync(command);
         }
 
