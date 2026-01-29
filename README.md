@@ -120,6 +120,12 @@ curl -X POST http://localhost:3000/api/youtube/upload \
 ### Amazon Affiliate
 - `POST /api/affiliate/generate` - Generate affiliate link
 
+### Data Cleanup
+- `GET /api/cleanup/scan` - Scan for irrelevant data (orphaned configs, stale files, temp files)
+- `GET /api/cleanup/status` - Get cleanup status and summary
+- `POST /api/cleanup/archive` - Archive irrelevant data to archive directory
+- `POST /api/cleanup/erase` - Permanently delete irrelevant data
+
 ### System
 - `GET /api/health` - Health check endpoint
 
@@ -131,12 +137,14 @@ curl -X POST http://localhost:3000/api/youtube/upload \
 ├── amazon-affiliate.js         # Amazon affiliate management
 ├── video-processor.js          # Video processing engine
 ├── automation-scheduler.js     # Cron-based scheduler
+├── data-cleanup.js             # Data cleanup utility
 ├── server.js                   # Express API server
 ├── setup-youtube.js            # Setup wizard
 ├── videos/                     # Video directory
 │   ├── *.mp4                   # AI-generated videos
 │   ├── *.json                  # Video configs
 │   └── processed/              # Metadata storage
+├── archive/                    # Archived irrelevant data
 └── YOUTUBE_AUTOMATION.md       # Detailed documentation
 ```
 
@@ -316,6 +324,11 @@ npm run monitor        # Start health monitoring
 # Automation
 npm run automation:dashboard  # View automation status
 npm run automation:validate   # Validate automation setup
+
+# Data Cleanup
+npm run cleanup:scan   # Scan for irrelevant data
+npm run cleanup:archive # Archive irrelevant data
+npm run cleanup:erase  # Permanently delete irrelevant data
 ```
 
 ## Contributing
