@@ -20,6 +20,54 @@ class VideoGenerator {
     }
 
     /**
+     * Sanitize text input to prevent command injection
+     * @param {string} text - Text to sanitize
+     * @returns {string} Sanitized text
+     */
+    sanitizeText(text) {
+        if (typeof text !== 'string') {
+            return '';
+        }
+        // Remove or escape shell special characters
+        // Allow alphanumeric, spaces, and basic punctuation
+        return text.replace(/[`$\\!"]/g, '\\$&').substring(0, 500);
+    }
+
+    /**
+     * Validate and sanitize file path to prevent path traversal
+     * @param {string} filePath - File path to validate
+     * @param {string} baseDir - Base directory that file must be within
+     * @returns {string} Validated path
+     */
+    validateFilePath(filePath, baseDir) {
+        const resolvedPath = path.resolve(filePath);
+        const resolvedBase = path.resolve(baseDir);
+
+        // Ensure the resolved path is within the base directory
+        if (!resolvedPath.startsWith(resolvedBase)) {
+            throw new Error('Path traversal detected: file path outside allowed directory');
+        }
+
+        return resolvedPath;
+    }
+
+    /**
+     * Validate numeric input
+     * @param {number} value - Value to validate
+     * @param {number} min - Minimum allowed value
+     * @param {number} max - Maximum allowed value
+     * @param {number} defaultValue - Default value if invalid
+     * @returns {number} Validated number
+     */
+    validateNumber(value, min, max, defaultValue) {
+        const num = parseInt(value, 10);
+        if (isNaN(num) || num < min || num > max) {
+            return defaultValue;
+        }
+        return num;
+    }
+
+    /**
      * Initialize video generator
      */
     async initialize() {
@@ -178,26 +226,38 @@ class VideoGenerator {
     async generateSlideImage(slide, index) {
         const imagePath = path.join(this.tempDirectory, `slide-${index}.png`);
 
+        // Validate the output path
+        const validatedPath = this.validateFilePath(imagePath, this.tempDirectory);
+
+        // Sanitize the text input
+        const sanitizedText = this.sanitizeText(slide.text);
+
+        // Validate dimensions
+        const safeWidth = this.validateNumber(this.videoWidth, 320, 7680, 1920);
+        const safeHeight = this.validateNumber(this.videoHeight, 240, 4320, 1080);
+
         // Generate image using ImageMagick or fallback to FFmpeg
         try {
             // Try ImageMagick first
-            const text = this.wrapText(slide.text, 40);
-            const command = `convert -size ${this.videoWidth}x${this.videoHeight} xc:black \
+            const text = this.wrapText(sanitizedText, 40);
+            const command = `convert -size ${safeWidth}x${safeHeight} xc:black \
                 -font Arial -pointsize 72 -fill white \
                 -gravity center -annotate +0+0 "${text}" \
-                "${imagePath}"`;
+                "${validatedPath}"`;
 
             await execAsync(command);
         } catch {
             // Fallback to FFmpeg drawtext filter
-            const command = `ffmpeg -f lavfi -i color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=1 \
-                -vf "drawtext=text='${slide.text}':fontcolor=white:fontsize=72:x=(w-text_w)/2:y=(h-text_h)/2" \
-                -frames:v 1 "${imagePath}" -y`;
+            // For FFmpeg, further escape single quotes in text
+            const escapedText = sanitizedText.replace(/'/g, "'\\''");
+            const command = `ffmpeg -f lavfi -i color=c=black:s=${safeWidth}x${safeHeight}:d=1 \
+                -vf "drawtext=text='${escapedText}':fontcolor=white:fontsize=72:x=(w-text_w)/2:y=(h-text_h)/2" \
+                -frames:v 1 "${validatedPath}" -y`;
 
             await execAsync(command);
         }
 
-        return imagePath;
+        return validatedPath;
     }
 
     /**
@@ -207,31 +267,45 @@ class VideoGenerator {
      * @param {string} outputPath - Output video path
      */
     async createVideoFromImages(imageFiles, slides, outputPath) {
+        // Validate output path
+        const validatedOutputPath = this.validateFilePath(outputPath, this.videoDirectory);
+
         // Create concat file for FFmpeg
         const concatFilePath = path.join(this.tempDirectory, 'concat.txt');
+        const validatedConcatPath = this.validateFilePath(concatFilePath, this.tempDirectory);
+
         let concatContent = '';
 
         for (let i = 0; i < imageFiles.length; i++) {
-            concatContent += `file '${path.resolve(imageFiles[i])}'\n`;
+            // Validate each image file path
+            const validatedImagePath = this.validateFilePath(imageFiles[i], this.tempDirectory);
+            concatContent += `file '${validatedImagePath}'\n`;
             concatContent += `duration ${slides[i].duration}\n`;
         }
         // Add last image again for proper duration
         if (imageFiles.length > 0) {
-            concatContent += `file '${path.resolve(imageFiles[imageFiles.length - 1])}'\n`;
+            const lastImagePath = this.validateFilePath(
+                imageFiles[imageFiles.length - 1],
+                this.tempDirectory
+            );
+            concatContent += `file '${lastImagePath}'\n`;
         }
 
-        await fs.writeFile(concatFilePath, concatContent);
+        await fs.writeFile(validatedConcatPath, concatContent);
+
+        // Validate FPS
+        const safeFps = this.validateNumber(this.fps, 1, 60, 30);
 
         // Generate video
-        const command = `ffmpeg -f concat -safe 0 -i "${concatFilePath}" \
-            -vf "fps=${this.fps},format=yuv420p" \
+        const command = `ffmpeg -f concat -safe 0 -i "${validatedConcatPath}" \
+            -vf "fps=${safeFps},format=yuv420p" \
             -c:v libx264 -preset fast \
-            "${outputPath}" -y`;
+            "${validatedOutputPath}" -y`;
 
         await execAsync(command);
 
         // Clean up concat file
-        await fs.unlink(concatFilePath).catch(() => {});
+        await fs.unlink(validatedConcatPath).catch(() => {});
     }
 
     /**
@@ -242,9 +316,15 @@ class VideoGenerator {
     async generatePlaceholder(config, outputPath) {
         const { title } = config;
 
+        // Validate output path
+        const validatedOutputPath = this.validateFilePath(outputPath, this.videoDirectory);
+
+        // Sanitize title for display in placeholder
+        const sanitizedTitle = this.sanitizeText(title);
+
         // Create a simple text file as a placeholder
         const placeholderText = `
-Video Placeholder: ${title}
+Video Placeholder: ${sanitizedTitle}
 ========================================
 
 This is a placeholder for the video that would be generated.
@@ -254,29 +334,33 @@ To enable automatic video generation, install:
 - ImageMagick (optional): sudo apt-get install imagemagick
 
 Products:
-${config.products.map((p, i) => `${i + 1}. ${p.name} (${p.url})`).join('\n')}
+${config.products.map((p, i) => `${i + 1}. ${this.sanitizeText(p.name)} (${p.url})`).join('\n')}
 
 Description:
-${config.description}
+${this.sanitizeText(config.description || '')}
 
-Tags: ${config.tags ? config.tags.join(', ') : 'N/A'}
+Tags: ${config.tags ? config.tags.map((t) => this.sanitizeText(t)).join(', ') : 'N/A'}
 `;
+
+        // Validate dimensions
+        const safeWidth = this.validateNumber(this.videoWidth, 320, 7680, 1920);
+        const safeHeight = this.validateNumber(this.videoHeight, 240, 4320, 1080);
 
         // Create a minimal valid MP4 file using FFmpeg (if available) or create a marker file
         try {
             // Try to create a minimal black video
-            const command = `ffmpeg -f lavfi -i color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=5 \
-                -c:v libx264 -preset ultrafast "${outputPath}" -y 2>/dev/null`;
+            const command = `ffmpeg -f lavfi -i color=c=black:s=${safeWidth}x${safeHeight}:d=5 \
+                -c:v libx264 -preset ultrafast "${validatedOutputPath}" -y 2>/dev/null`;
             await execAsync(command);
         } catch {
             // If FFmpeg is not available, create a text placeholder
-            await fs.writeFile(outputPath + '.txt', placeholderText);
+            await fs.writeFile(validatedOutputPath + '.txt', placeholderText);
             logger.warn('Created text placeholder instead of video', {
-                path: outputPath + '.txt',
+                path: validatedOutputPath + '.txt',
             });
         }
 
-        logger.info('Generated placeholder video', { outputPath });
+        logger.info('Generated placeholder video', { outputPath: validatedOutputPath });
     }
 
     /**
@@ -367,34 +451,45 @@ Tags: ${config.tags ? config.tags.join(', ') : 'N/A'}
             // First generate the base video
             const videoPath = await this.generateVideo(config);
 
+            // Validate video path
+            const validatedVideoPath = this.validateFilePath(videoPath, this.videoDirectory);
+
             // Generate audio using text-to-speech (requires espeak or festival)
             const audioPath = path.join(this.tempDirectory, `narration-${Date.now()}.wav`);
+            const validatedAudioPath = this.validateFilePath(audioPath, this.tempDirectory);
+
+            // Sanitize script input
+            const sanitizedScript = this.sanitizeText(script);
 
             try {
                 // Try using espeak for text-to-speech
+                // Limit script length to prevent resource exhaustion
+                const truncatedScript = sanitizedScript.substring(0, 1000);
                 await execAsync(
-                    `espeak "${script}" -w "${audioPath}" 2>/dev/null || \
-                     echo "${script}" | festival --tts -o "${audioPath}" 2>/dev/null`
+                    `espeak "${truncatedScript}" -w "${validatedAudioPath}" 2>/dev/null || \
+                     echo "${truncatedScript}" | festival --tts -o "${validatedAudioPath}" 2>/dev/null`
                 );
 
                 // Combine video with audio
-                const outputPath = videoPath.replace('.mp4', '-narrated.mp4');
+                const outputPath = validatedVideoPath.replace('.mp4', '-narrated.mp4');
+                const validatedOutputPath = this.validateFilePath(outputPath, this.videoDirectory);
+
                 await execAsync(
-                    `ffmpeg -i "${videoPath}" -i "${audioPath}" \
+                    `ffmpeg -i "${validatedVideoPath}" -i "${validatedAudioPath}" \
                      -c:v copy -c:a aac -strict experimental \
-                     "${outputPath}" -y`
+                     "${validatedOutputPath}" -y`
                 );
 
                 // Clean up
-                await fs.unlink(audioPath).catch(() => {});
-                await fs.unlink(videoPath).catch(() => {});
+                await fs.unlink(validatedAudioPath).catch(() => {});
+                await fs.unlink(validatedVideoPath).catch(() => {});
 
-                return outputPath;
+                return validatedOutputPath;
             } catch (error) {
                 logger.warn('Could not add narration to video', {
                     error: error.message,
                 });
-                return videoPath;
+                return validatedVideoPath;
             }
         } catch (error) {
             logger.error('Failed to generate video with narration', {
