@@ -1,484 +1,401 @@
-# YouTube Amazon Affiliate Automation System
+# 🤖 Stealth AI System
+## Microstacking + Signal Compression for YouTube & Amazon Affiliate
 
-**100% Fully Automated System with Automatic Video Generation**
+A zero-leverage, low-resource AI automation system designed for creators with **no money, no audience, and no leverage**. Uses advanced signal compression and microstacking techniques to build presence efficiently.
 
-This application provides a complete automation solution that **automatically generates videos** from product configurations, adds Amazon affiliate links, and posts them to YouTube. Built with enterprise-grade security, monitoring, and automation features using **free, open-source tools**.
+---
 
-## 🎬 Primary Features - YouTube Automation
+## 🎯 Core Concepts
 
-### Video Generation 🎥 (NEW!)
-- ✅ **Automatic Video Creation**: Generate videos from JSON configurations
-- ✅ **Text-to-Speech Narration**: Optional voice narration using free tools
-- ✅ **Slide-based Videos**: Create product showcase videos automatically
-- ✅ **Customizable Templates**: Configure video dimensions, duration, and styling
-- ✅ **Batch Generation**: Create multiple videos from configurations
-- ✅ **Free Tools**: Uses FFmpeg, ImageMagick, and espeak (all free)
+### Signal Compression
+Compresses content to its essential signals, removing redundancy while maintaining meaning. Optimizes for:
+- Maximum information density
+- Minimal resource usage
+- Stealth distribution patterns
 
-### Core Automation 🤖
-- 🎥 **Automatic Video Processing**: Scans directory for AI-generated videos
-- 💰 **Affiliate Link Injection**: Automatically adds Amazon affiliate links to descriptions
-- 📅 **Scheduled Uploads**: Configurable cron-based YouTube uploads
-- 🔄 **Batch Processing**: Process multiple videos simultaneously
-- 🧹 **Auto-Cleanup**: Removes old processed files automatically
-- 📊 **Metadata Management**: Tracks all processed videos and upload status
-- ⚡ **Zero-Touch Operation**: 100% hands-free after initial setup
+### Microstacking
+Creates small, frequent content pieces instead of large batches:
+- Micro-content pieces (5-10 per stack)
+- Distributed posting schedule
+- Appears organic and non-spammy
+- Builds presence gradually
 
-### YouTube Integration 📺
-- ✅ **OAuth2 Authentication**: Secure YouTube API v3 integration
-- ✅ **Video Uploads**: Automated uploads with custom metadata
-- ✅ **Metadata Control**: Custom titles, descriptions, tags
-- ✅ **Privacy Controls**: Public, unlisted, or private options
-- ✅ **Video Management**: Update, retrieve, and delete videos programmatically
+---
 
-### Amazon Affiliate 💵
-- ✅ **Link Generation**: Automatic affiliate link creation from ASINs/URLs
-- ✅ **Batch Operations**: Generate multiple affiliate links at once
-- ✅ **Smart Descriptions**: Professional product descriptions with embedded links
-- ✅ **FTC Compliance**: Automatic disclaimer integration
-- ✅ **Link Validation**: Verify affiliate links are properly formatted
+## ⚡ Quick Start
 
-### Video Processing 📹
-- ✅ **Auto-Discovery**: Scans video directory for new content
-- ✅ **Metadata Extraction**: Reads and processes video file information
-- ✅ **JSON Configuration**: Per-video configuration support
-- ✅ **Product Linking**: Automatic product-to-description mapping
-- ✅ **SEO Optimization**: Smart tag enhancement for discoverability
-
-## 🚀 Quick Start
-
-### One-Command Setup (Automated)
-
+### 1. Install
 ```bash
-npm run build-configure-test
-```
-
-This automated workflow will install, configure, and test your system in ~3-5 minutes.
-
-### Manual Setup
-
-```bash
-# 1. Install dependencies
 npm install
-
-# 2. Setup video generation (installs FFmpeg and other tools)
-npm run setup:video-generation
-
-# 3. Run setup wizard
-npm run setup:youtube
-
-# 4. Start the server
-npm start
 ```
 
-### 📖 Complete Installation Guide
-
-For detailed step-by-step instructions including API credential setup, configuration options, deployment, and troubleshooting, see:
-
-**➡️ [docs/INSTALLATION.md](docs/INSTALLATION.md) - Complete Installation & Setup Guide**
-
-This comprehensive guide covers:
-- Prerequisites and system requirements
-- Getting YouTube API credentials
-- Getting Amazon Associates credentials
-- Configuration options
-- Deployment to various platforms
-- Troubleshooting common issues
-- Testing and verification
-
-## 📖 Usage
-
-### Automated Workflow with Video Generation (NEW!)
-
-1. **Create product configs** in `./videos/` directory:
-   ```json
-   {
-     "title": "Top 5 Gaming Accessories 2024",
-     "description": "Best gaming gear for serious gamers!",
-     "products": [
-       { "name": "Gaming Mouse RGB", "url": "B08XXXXX" },
-       { "name": "Mechanical Keyboard", "url": "B08YYYYY" }
-     ],
-     "tags": ["gaming", "review", "tech"]
-   }
-   ```
-
-2. **Generate videos automatically**:
-   ```bash
-   # Generate videos from all JSON configs
-   curl -X POST http://localhost:3000/api/videos/generate-from-configs
-   ```
-
-3. **Let it run** - Videos are automatically processed and uploaded per schedule!
-
-### Alternative: Use Pre-existing Videos
-
-1. **Place videos** in `./videos/` directory
-2. **Create config** files (optional): `video-name.json`
-3. **Let automation run** - Videos are automatically processed and uploaded!
-
-### Manual Operations
-
+### 2. Configure
+Create `.env` file:
 ```bash
-# Generate a single video
-curl -X POST http://localhost:3000/api/videos/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "My Product Review",
-    "products": [{"name": "Product", "url": "B08XXXXX"}],
-    "tags": ["review", "tech"]
-  }'
-
-# Trigger processing now
-curl -X POST http://localhost:3000/api/automation/trigger
-
-# Upload specific video
-curl -X POST http://localhost:3000/api/youtube/upload \
-  -H "Content-Type: application/json" \
-  -d '{
-    "filePath": "./videos/my-video.mp4",
-    "title": "My Video",
-    "products": [{"name": "Product", "url": "B08XXXXX"}]
-  }'
+cp .env.example .env
 ```
 
-## 📊 API Endpoints
+Edit `.env` with your credentials:
+```env
+# YouTube API
+YOUTUBE_CLIENT_ID=your_client_id
+YOUTUBE_CLIENT_SECRET=your_client_secret
+YOUTUBE_REFRESH_TOKEN=your_refresh_token
 
-### Video Generation (NEW!)
-- `POST /api/videos/generate` - Generate video from configuration
-- `POST /api/videos/generate-from-configs` - Generate videos from all JSON files
-- `POST /api/videos/generate-with-narration` - Generate video with voice narration
+# Amazon Affiliate
+AMAZON_AFFILIATE_TAG=yourtag-20
 
-### YouTube Automation
-- `GET /api/automation/status` - Get automation status
-- `POST /api/automation/trigger` - Manually trigger processing
-- `POST /api/youtube/upload` - Upload video with affiliate links
-- `GET /api/youtube/auth-url` - Get OAuth authorization URL
-- `GET /api/videos/scan` - Scan for new videos
+# Stealth Settings
+MICRO_STACK_SIZE=5
+SIGNAL_COMPRESSION_LEVEL=high
+POSTING_INTERVAL=0 */4 * * *
+STEALTH_MODE=true
+AUTO_POST=true
 
-### Amazon Affiliate
-- `POST /api/affiliate/generate` - Generate affiliate link
+# Content Topics
+CONTENT_TOPICS=tech,gadgets,reviews,tutorials
+```
 
-### Data Cleanup
-- `GET /api/cleanup/scan` - Scan for irrelevant data (orphaned configs, stale files, temp files)
-- `GET /api/cleanup/status` - Get cleanup status and summary
-- `POST /api/cleanup/archive` - Archive irrelevant data to archive directory
-- `POST /api/cleanup/erase` - Permanently delete irrelevant data
+### 3. Authenticate YouTube
+```bash
+node index.js auth
+```
+Follow the URL, authorize, and add the refresh token to `.env`
 
-### System
-- `GET /api/health` - Health check endpoint
+### 4. Generate Content
+```bash
+# Generate micro-content from topics
+node index.js generate
 
-## 📁 Project Structure
+# Generate with Amazon products
+node index.js generate B08XYZ123 B09ABC456
+```
+
+### 5. Start Stealth Mode
+```bash
+# Run with automated scheduler
+node index.js run
+```
+
+---
+
+## 📋 Commands
+
+| Command | Description |
+|---------|-------------|
+| `node index.js generate [ASINs...]` | Generate micro-content pieces |
+| `node index.js post` | Post next item from queue |
+| `node index.js post-all` | Post all queued items |
+| `node index.js status` | Show system status |
+| `node index.js run` | Run with automated scheduler |
+| `node index.js auth` | Get YouTube auth URL |
+
+---
+
+## 🏗️ Architecture
+
+```
+Stealth AI System
+│
+├── Signal Compressor (src/compressor.js)
+│   ├── Text compression
+│   ├── Key signal extraction
+│   └── Metadata optimization
+│
+├── Micro-Stacker (src/microstacker.js)
+│   ├── Micro-content generation
+│   ├── Stack management
+│   └── Distribution scheduling
+│
+├── Content Generator (src/generator.js)
+│   ├── Template-based generation
+│   ├── Batch processing
+│   └── Topic parsing
+│
+├── Amazon Affiliate (src/affiliate.js)
+│   ├── Link generation
+│   ├── Description enhancement
+│   └── FTC compliance
+│
+├── YouTube Manager (src/youtube.js)
+│   ├── OAuth2 authentication
+│   ├── Stealth posting
+│   └── Video uploads
+│
+└── Stealth Engine (src/engine.js)
+    ├── Orchestration
+    ├── Queue management
+    ├── Automated scheduling
+    └── State persistence
+```
+
+---
+
+## 🔧 Configuration Options
+
+### Compression Levels
+- **low**: 70% signal retention (more verbose)
+- **medium**: 50% signal retention (balanced)
+- **high**: 30% signal retention (maximum compression)
+
+### Stack Sizes
+- **3-5**: Rapid micro-posting
+- **5-10**: Standard distribution
+- **10+**: Batch-oriented
+
+### Posting Intervals (Cron)
+```bash
+# Every 4 hours (stealth)
+0 */4 * * *
+
+# Every 6 hours
+0 */6 * * *
+
+# Twice daily
+0 9,21 * * *
+
+# Random-looking times
+17 3,11,19 * * *
+```
+
+---
+
+## 🚀 Usage Examples
+
+### Basic Workflow
+```bash
+# 1. Generate content for your topics
+node index.js generate
+
+# 2. Check status
+node index.js status
+
+# 3. Post one item (test)
+node index.js post
+
+# 4. Run automated mode
+node index.js run
+```
+
+### With Amazon Products
+```bash
+# Generate content with specific products
+node index.js generate B08L8KC1J7 B09B4K1XYZ B07P9ZR9K3
+
+# System will:
+# 1. Create micro-content about your topics
+# 2. Add affiliate links for these products
+# 3. Queue them for posting
+```
+
+### Status Monitoring
+```bash
+# Check current status
+node index.js status
+
+# Output:
+# 📊 Stealth AI System Status:
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Queue Size: 15
+# Stealth Mode: ✅ ACTIVE
+# Scheduler: ✅ RUNNING
+# YouTube Auth: ✅ OK
+# Amazon Affiliate: ✅ OK
+```
+
+---
+
+## 📂 Directory Structure
 
 ```
 .
-├── youtube-api.js              # YouTube API integration
-├── amazon-affiliate.js         # Amazon affiliate management
-├── video-processor.js          # Video processing engine
-├── automation-scheduler.js     # Cron-based scheduler
-├── data-cleanup.js             # Data cleanup utility
-├── server.js                   # Express API server
-├── video-generator.js          # Video generation engine (NEW!)
-├── setup-youtube.js            # Setup wizard
-├── setup-video-generation.sh   # Video generation setup (NEW!)
-├── videos/                     # Video directory
-│   ├── *.mp4                   # AI-generated videos
-│   ├── *.json                  # Video configs
-│   └── processed/              # Metadata storage
-├── temp/                       # Temporary files for video generation (NEW!)
-├── archive/                    # Archived irrelevant data
-├── VIDEO_GENERATION.md         # Video generation guide (NEW!)
-└── YOUTUBE_AUTOMATION.md       # Detailed documentation
+├── index.js                 # Main entry point
+├── package.json             # Dependencies
+├── .env                     # Configuration (create from .env.example)
+├── .env.example             # Configuration template
+├── README.md                # This file
+│
+├── src/
+│   ├── engine.js            # Stealth Engine orchestrator
+│   ├── generator.js         # Content generator
+│   ├── compressor.js        # Signal compressor
+│   ├── microstacker.js      # Micro-stacking logic
+│   ├── affiliate.js         # Amazon affiliate manager
+│   └── youtube.js           # YouTube API manager
+│
+├── data/
+│   └── queue.json           # Content queue (auto-generated)
+│
+├── logs/
+│   └── posts.log            # Post history (auto-generated)
+│
+└── output/
+    └── (generated files)
 ```
-
-## ⚙️ Configuration
-
-### Video Generation Settings
-
-```env
-# Video dimensions
-VIDEO_WIDTH=1920          # Width in pixels (default: 1920)
-VIDEO_HEIGHT=1080         # Height in pixels (default: 1080)
-
-# Video settings
-VIDEO_FPS=30              # Frames per second (default: 30)
-SLIDE_DURATION=3          # Seconds per slide (default: 3)
-
-# Directories
-TEMP_DIRECTORY=./temp     # Temporary files directory
-```
-
-### Upload Schedule (Cron Format)
-
-```env
-# Examples:
-UPLOAD_SCHEDULE=0 10 * * *      # Daily at 10 AM
-UPLOAD_SCHEDULE=0 14 * * 1-5    # Weekdays at 2 PM
-UPLOAD_SCHEDULE=0 */6 * * *     # Every 6 hours
-```
-
-### Privacy Settings
-
-```env
-DEFAULT_PRIVACY_STATUS=public   # public, unlisted, or private
-```
-
-## 🔐 Security
-
-- ✅ **OAuth2**: Secure YouTube authentication
-- ✅ **Environment Variables**: All secrets in .env
-- ✅ **Rate Limiting**: API endpoint protection
-- ✅ **Helmet.js**: Security headers
-- ✅ **Input Validation**: All user inputs validated
-- ✅ **CORS**: Configurable whitelist
-
-## 📚 Documentation
-
-- **[docs/VIDEO_GENERATION.md](docs/VIDEO_GENERATION.md)** - Complete video generation guide (NEW!)
-- **[docs/INSTALLATION.md](docs/INSTALLATION.md)** - Complete installation and setup guide
-- **[docs/YOUTUBE_AUTOMATION.md](docs/YOUTUBE_AUTOMATION.md)** - Complete YouTube automation guide
-- **[docs/AUTOMATION.md](docs/AUTOMATION.md)** - CI/CD and DevOps automation
-- **[docs/SECURITY.md](docs/SECURITY.md)** - Security guidelines and best practices
-- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Extended troubleshooting guide
-
-## 🎯 Example Workflows
-
-### Complete Automated Workflow (with Video Generation)
-```bash
-# 1. Create product configuration
-cat > videos/gaming-products.json << 'EOF'
-{
-  "title": "Top 5 Gaming Accessories 2024",
-  "description": "Best gaming gear!",
-  "products": [
-    {"name": "Gaming Mouse", "url": "B08XXXXX"},
-    {"name": "Mechanical Keyboard", "url": "B08YYYYY"}
-  ],
-  "tags": ["gaming", "tech", "review"]
-}
-EOF
-
-# 2. Generate video
-curl -X POST http://localhost:3000/api/videos/generate-from-configs
-
-# 3. Videos are automatically uploaded per schedule (or trigger now)
-curl -X POST http://localhost:3000/api/automation/trigger
-```
-
-### Daily Automated Uploads
-```bash
-# 1. Configure schedule
-echo "AUTO_UPLOAD=true" >> .env
-echo "UPLOAD_SCHEDULE=0 10 * * *" >> .env
-
-# 2. Create video configs OR add videos to directory
-# Option A: Generate videos from configs
-curl -X POST http://localhost:3000/api/videos/generate-from-configs
-
-# Option B: Add pre-made videos
-cp my-videos/*.mp4 videos/
-
-# 3. Done! Videos upload automatically at 10 AM
-```
-
-### Batch Processing
-```javascript
-// Trigger batch upload
-const response = await fetch('http://localhost:3000/api/automation/trigger', {
-  method: 'POST'
-});
-const { results } = await response.json();
-console.log(`Uploaded ${results.uploaded} videos`);
-```
-
-## 🛠️ Available Commands
-
-```bash
-# Setup
-npm run setup:youtube          # YouTube automation setup wizard
-npm install                     # Install dependencies
-
-# Running
-npm start                       # Start server
-npm run dev                     # Development mode
-
-# Automation
-# (Runs automatically based on UPLOAD_SCHEDULE)
-
-# Development
-npm test                        # Run tests
-npm run lint                    # Check code quality
-npm run format                  # Format code
-
-# Docker
-npm run docker:build            # Build Docker image
-npm run docker:run              # Run with Docker Compose
-```
-
-## 🐛 Troubleshooting
-
-### Videos Not Uploading
-1. Check YouTube API credentials
-2. Verify video file format (mp4, mov, avi, mkv, webm)
-3. Review server logs for errors
-
-### Affiliate Links Not Working
-1. Verify `AMAZON_AFFILIATE_TAG` in .env
-2. Test link generation: `POST /api/affiliate/generate`
-
-### Scheduler Not Running
-1. Ensure `AUTO_UPLOAD=true`
-2. Verify cron schedule format
-3. Restart server
-
-## 🚀 Deployment
-
-### Docker
-```bash
-docker build -t youtube-automation .
-docker run -d -p 3000:3000 \
-  -v $(pwd)/videos:/app/videos \
-  -v $(pwd)/.env:/app/.env \
-  youtube-automation
-```
-
-### Production Checklist
-- [ ] Set `NODE_ENV=production`
-- [ ] Enable HTTPS with SSL
-- [ ] Configure firewall
-- [ ] Set up monitoring
-- [ ] Enable log rotation
-- [ ] Configure backups
-
-## 📈 Performance
-
-- Batch processing for efficiency
-- Cron-based scheduling
-- Automatic cleanup of old files
-- Request caching and optimization
-
-## 📂 Repository Structure
-
-The repository is organized into a clean, modular structure:
-
-```
-YouTubeAmazon1/
-├── src/                      # Source code
-│   ├── server/              # Backend server
-│   │   └── server.js        # Main Express server
-│   ├── client/              # Frontend files
-│   │   ├── index.html       # Web interface
-│   │   ├── app.js           # Client-side JavaScript
-│   │   └── styles.css       # Styles
-│   └── lib/                 # Shared libraries & modules
-│       ├── youtube-api.js   # YouTube API integration
-│       ├── amazon-affiliate.js  # Amazon affiliate links
-│       ├── video-processor.js   # Video processing
-│       ├── video-generator.js   # Video generation
-│       ├── automation-scheduler.js  # Cron scheduling
-│       ├── data-cleanup.js      # Data management
-│       ├── validate-automation.js  # Validation utilities
-│       └── logger.js        # Logging utility
-├── scripts/                 # Automation & setup scripts
-│   ├── setup.js             # Setup wizard
-│   ├── setup-youtube.js     # YouTube setup
-│   ├── setup-video-generation.sh  # Video tools setup
-│   ├── build-configure-test.sh    # CI/CD workflow
-│   ├── automation-dashboard.sh    # Status dashboard
-│   └── monitor.sh           # Monitoring script
-├── tests/                   # Test files
-│   ├── test-security.js     # Security tests
-│   └── test-integration.js  # Integration tests
-├── docs/                    # Documentation
-│   ├── INSTALLATION.md      # Installation guide
-│   ├── AUTOMATION.md        # Automation guide
-│   ├── VIDEO_GENERATION.md  # Video generation guide
-│   ├── YOUTUBE_AUTOMATION.md  # YouTube automation guide
-│   ├── SECURITY.md          # Security guidelines
-│   ├── TROUBLESHOOTING.md   # Troubleshooting guide
-│   └── ...                  # Other docs
-├── videos/                  # Video files & configs
-│   ├── example-*.json       # Example configurations
-│   └── processed/           # Processed metadata
-├── .github/                 # GitHub workflows & config
-├── package.json             # Node.js dependencies
-├── Dockerfile               # Docker configuration
-├── docker-compose.yml       # Docker Compose setup
-└── README.md                # This file
-```
-
-### Key Directories
-
-- **`src/server/`** - Backend API server and routes
-- **`src/client/`** - Frontend web interface
-- **`src/lib/`** - Reusable modules and business logic
-- **`scripts/`** - Automation scripts and setup wizards
-- **`tests/`** - Automated tests for security and integration
-- **`docs/`** - Comprehensive documentation
-- **`videos/`** - Video files and configuration JSON files
-
-## 🤝 Contributing
-
-Feel free to fork and customize for your needs!
 
 ---
 
-**Built for 100% Automated YouTube & Amazon Affiliate Video Marketing** 🎬💰
+## 🔐 Getting API Credentials
 
-## 📚 Documentation
+### YouTube API
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project
+3. Enable "YouTube Data API v3"
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URI: `http://localhost:3000/oauth2callback`
+6. Copy Client ID and Client Secret to `.env`
+7. Run `node index.js auth` to get refresh token
 
-- **[docs/INSTALLATION.md](docs/INSTALLATION.md)** - Complete installation and setup guide
-- **[docs/AUTOMATION.md](docs/AUTOMATION.md)** - Complete guide to using automation features
-- **[docs/SECURITY.md](docs/SECURITY.md)** - Security guidelines and best practices
-- **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Version history and changes
-
-## 🛠️ Available Commands
-
-```bash
-# Development
-npm start              # Start the server
-npm run dev            # Start in development mode
-npm run setup          # Run setup wizard
-npm run build-configure-test # Automated setup, testing, and quality checks
-
-# Build & Deploy
-npm run build-configure-test  # Build, configure, and test workflow with retry
-
-# Testing
-npm test               # Run all tests
-npm run test:security  # Run security tests
-npm run test:integration # Run integration tests
-
-# Code Quality
-npm run lint           # Check code quality
-npm run lint:fix       # Auto-fix linting issues
-npm run format         # Format code with Prettier
-npm run format:check   # Check code formatting
-npm run ci             # Run all CI checks locally
-
-# Docker
-npm run docker:build   # Build Docker image
-npm run docker:run     # Run with Docker Compose
-npm run docker:stop    # Stop Docker containers
-npm run docker:logs    # View Docker logs
-npm run docker:prod    # Run in production mode
-
-# Monitoring
-npm run monitor        # Start health monitoring
-
-# Automation
-npm run automation:dashboard  # View automation status
-npm run automation:validate   # Validate automation setup
-
-# Data Cleanup
-npm run cleanup:scan   # Scan for irrelevant data
-npm run cleanup:archive # Archive irrelevant data
-npm run cleanup:erase  # Permanently delete irrelevant data
-```
-
-## Contributing
-
-Feel free to fork this project and customize it for your needs!
+### Amazon Affiliate
+1. Sign up at [Amazon Associates](https://affiliate-program.amazon.com/)
+2. Get approved (may take 1-3 days)
+3. Find your tracking ID in account settings
+4. Add to `.env` as `AMAZON_AFFILIATE_TAG`
 
 ---
 
-**Built with ❤️ for 100% Automated YouTube & Amazon Affiliate Video Marketing** 🎬💰
+## 💡 Strategy Tips
+
+### For Zero Leverage
+1. **Start Small**: Generate 10-20 micro-pieces
+2. **Post Gradually**: Use 4-6 hour intervals
+3. **Be Consistent**: Run scheduler 24/7
+4. **Track Results**: Monitor logs/posts.log
+5. **Iterate**: Adjust topics based on what works
+
+### Stealth Posting Pattern
+- Random intervals (appear human)
+- Small content chunks (not bulk uploads)
+- Varied posting times
+- Natural language patterns
+- Gradual audience building
+
+### Content Topics
+Focus on:
+- Evergreen content (timeless)
+- Product reviews (affiliate revenue)
+- Tutorials (high engagement)
+- Niche topics (less competition)
+
+---
+
+## 🛡️ Privacy & Compliance
+
+- ✅ FTC disclosure automatically added
+- ✅ OAuth2 secure authentication
+- ✅ No data collection
+- ✅ Local state management
+- ✅ Environment-based secrets
+
+---
+
+## 🔧 Troubleshooting
+
+### "YouTube Auth: ❌ NOT CONFIGURED"
+Run `node index.js auth` and complete OAuth flow
+
+### "Amazon Affiliate: ❌ NOT CONFIGURED"
+Add valid affiliate tag to `.env`
+
+### Queue Not Posting
+1. Check `AUTO_POST=true` in `.env`
+2. Verify cron schedule is valid
+3. Ensure `STEALTH_MODE=true` for auto-posting
+
+### No Content Generated
+1. Check `CONTENT_TOPICS` in `.env`
+2. Run `node index.js generate` manually
+3. Check logs for errors
+
+---
+
+## 📊 How It Works
+
+```
+1. GENERATE
+   ↓
+   Topics → Micro-Content → Signal Compression → Queue
+   
+2. STACK
+   ↓
+   Queue → Micro-Stacks (5 pieces each) → Distribution Plan
+   
+3. POST
+   ↓
+   Stack → Add Affiliate Links → YouTube API → Posted
+   
+4. REPEAT
+   ↓
+   Scheduler → Next Item → Post → Wait → Repeat
+```
+
+---
+
+## 🎯 Use Cases
+
+### Scenario 1: Product Reviewer
+```bash
+# Topics: tech reviews
+# Products: Latest gadgets
+# Strategy: Post 1 review every 4 hours
+# Result: 6 posts/day, builds authority gradually
+```
+
+### Scenario 2: Tutorial Creator
+```bash
+# Topics: how-to, tutorials
+# Products: Tools mentioned in tutorials
+# Strategy: Post 1 tutorial every 6 hours
+# Result: 4 posts/day, educational content
+```
+
+### Scenario 3: Niche Expert
+```bash
+# Topics: specialized niche
+# Products: Niche-specific products
+# Strategy: Post 1 piece every 8 hours
+# Result: 3 posts/day, target audience building
+```
+
+---
+
+## 🚀 Scaling
+
+Once you have leverage (audience/revenue):
+1. Increase `MICRO_STACK_SIZE` to 10-20
+2. Add more content topics
+3. Reduce posting intervals
+4. Diversify product categories
+5. A/B test different strategies
+
+---
+
+## 📝 Notes
+
+- **Stealth Mode**: Posts appear organic, not automated
+- **Signal Compression**: Maximum efficiency, minimal waste
+- **Microstacking**: Gradual presence building
+- **Zero Cost**: Uses only free APIs and tools
+- **Zero Audience Required**: Builds from nothing
+
+---
+
+## 🤝 Philosophy
+
+Built for creators starting from **absolute zero**:
+- No money for ads
+- No existing audience
+- No social proof
+- No leverage
+
+Uses AI efficiency to **create leverage from nothing**.
+
+---
+
+## 📜 License
+
+MIT - Build your presence freely.
+
+---
+
+**🤖 Execute. Compress. Stack. Repeat.**

@@ -17,32 +17,14 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
-monitoring.log
-
-# Winston logs directory
 logs/
 
+# Data files (generated)
+data/
+output/
+
 # Temporary files
-/tmp/
+tmp/
+temp/
 *.tmp
 *.pid
-
-# Video generation temporary files
-temp/
-*.png
-*.wav
-
-# Videos and processed files (exclude actual videos, keep configs)
-videos/*.mp4
-videos/*.mov
-videos/*.avi
-videos/*.mkv
-videos/*.webm
-videos/processed/*.json
-
-# Keep example configs and README
-!videos/example-*.json
-!videos/README.md
-
-# Archive directory (cleanup archives)
-archive/
