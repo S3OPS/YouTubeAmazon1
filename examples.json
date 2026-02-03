@@ -1,0 +1,44 @@
+{
+  "example": "Stealth AI System - Example Products",
+  "description": "Example Amazon product ASINs for testing",
+  "note": "Replace these with real ASINs from Amazon",
+  "categories": {
+    "tech": [
+      "B08L8KC1J7",
+      "B09B4K1XYZ",
+      "B07P9ZR9K3"
+    ],
+    "gaming": [
+      "B08XYZ1234",
+      "B09ABC5678",
+      "B07DEF9012"
+    ],
+    "office": [
+      "B08GHI3456",
+      "B09JKL7890",
+      "B07MNO1234"
+    ],
+    "home": [
+      "B08PQR5678",
+      "B09STU9012",
+      "B07VWX3456"
+    ]
+  },
+  "usage": [
+    "node index.js generate B08L8KC1J7 B09B4K1XYZ B07P9ZR9K3",
+    "node index.js generate B08XYZ1234 B09ABC5678",
+    "npm run generate"
+  ],
+  "finding_asins": [
+    "1. Go to any Amazon product page",
+    "2. Look in the URL: amazon.com/dp/ASIN_HERE",
+    "3. Or scroll down to 'Product Information' section",
+    "4. Copy the 10-character ASIN code"
+  ],
+  "example_topics": [
+    "tech,gadgets,electronics,reviews,unboxing",
+    "gaming,esports,streaming,accessories,setup",
+    "productivity,office,workspace,organization,tips",
+    "home,decor,kitchen,smart-home,lifestyle"
+  ]
+}
