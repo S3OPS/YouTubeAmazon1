@@ -1,72 +1,30 @@
 {
-    "name": "youtube-amazon-affiliate-automation",
-    "version": "2.0.0",
-    "description": "100% Automated YouTube Video Upload System with Amazon Affiliate Links",
-    "main": "src/server/server.js",
-    "scripts": {
-        "start": "node src/server/server.js",
-        "dev": "node src/server/server.js",
-        "test": "npm run test:security && npm run test:integration",
-        "test:security": "node tests/test-security.js",
-        "test:integration": "node tests/test-integration.js",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "format": "prettier --write .",
-        "format:check": "prettier --check .",
-        "setup": "node scripts/setup.js",
-        "setup:youtube": "node scripts/setup-youtube.js",
-        "setup:video-generation": "bash scripts/setup-video-generation.sh",
-        "prepare": "(node -e \"try{require.resolve('husky')}catch{process.exit(1)}\" && husky) || true",
-        "monitor": "bash scripts/monitor.sh",
-        "docker:build": "docker build -t youtube-automation:latest .",
-        "docker:run": "docker-compose up -d",
-        "docker:stop": "docker-compose down",
-        "docker:logs": "docker-compose logs -f",
-        "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
-        "ci": "npm run lint && npm run format:check && npm test",
-        "build-configure-test": "bash scripts/build-configure-test.sh",
-        "automation:dashboard": "bash scripts/automation-dashboard.sh",
-        "automation:validate": "node src/lib/validate-automation.js",
-        "cleanup:scan": "node -e \"require('./src/lib/data-cleanup').scanForIrrelevantData().then(r => console.log(JSON.stringify(r, null, 2)))\"",
-        "cleanup:archive": "node -e \"require('./src/lib/data-cleanup').cleanup('archive').then(r => console.log(JSON.stringify(r, null, 2)))\"",
-        "cleanup:erase": "node -e \"require('./src/lib/data-cleanup').cleanup('erase').then(r => console.log(JSON.stringify(r, null, 2)))\""
-    },
-    "keywords": [
-        "youtube",
-        "automation",
-        "amazon",
-        "affiliate",
-        "video",
-        "ai-generated",
-        "content-automation"
-    ],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "cors": "^2.8.5",
-        "dotenv": "^17.2.3",
-        "express": "^4.18.2",
-        "express-rate-limit": "^8.2.1",
-        "express-validator": "^7.3.1",
-        "googleapis": "^144.0.0",
-        "helmet": "^8.1.0",
-        "node-cron": "^3.0.3",
-        "uuid": "^13.0.0",
-        "winston": "^3.19.0"
-    },
-    "devDependencies": {
-        "@eslint/js": "^9.39.2",
-        "eslint": "^9.39.2",
-        "eslint-config-prettier": "^10.1.8",
-        "husky": "^9.1.7",
-        "jest": "^30.2.0",
-        "lint-staged": "^16.2.7",
-        "prettier": "^3.8.1"
-    },
-    "lint-staged": {
-        "*.js": [
-            "eslint --fix",
-            "prettier --write"
-        ]
-    }
+  "name": "stealth-ai-microstacking-system",
+  "version": "1.0.0",
+  "description": "Stealth AI system with signal compression and microstacking for YouTube automation with Amazon affiliate integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "setup": "node setup.js",
+    "generate": "node index.js generate",
+    "post": "node index.js post",
+    "status": "node index.js status",
+    "run": "node index.js run"
+  },
+  "keywords": [
+    "stealth",
+    "ai",
+    "microstacking",
+    "signal-compression",
+    "youtube",
+    "amazon-affiliate",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "googleapis": "^131.0.0",
+    "node-cron": "^3.0.3"
+  }
 }
